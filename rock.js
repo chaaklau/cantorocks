@@ -1,6 +1,6 @@
 (function (window) {
   
-  var velocity = 20;
+  var velocity = 6;
   
   function Rock(){
     this.Container_constructor();
