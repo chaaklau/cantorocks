@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-yue">
 <head>
 	<meta charset="utf-8">
 	<title>CantoRocks</title>
@@ -14,29 +14,6 @@
 <div id="content">
 	<canvas id="gameCanvas" width="800" height="480" style="background:black;"></canvas>
 </div>
-
-<div id="error">
-	<h1>Sorry!</h1>
-
-	<p>SoundJS is not currently supported in your browser.</p>
-
-	<p>Please <a href="http://github.com/CreateJS/SoundJS/issues"
-				 target="_blank">log a bug</a>
-		with the device and browser you are using. Thank you.</p>
-</div>
-
-<div id="mobile">
-	<h1>Sorry!</h1>
-
-	<p>Mobile devices require sound to be played inside of user events, which
-		this demo does not do.</p>
-
-	<p>Please <a href="http://github.com/CreateJS/SoundJS/issues"
-				 target="_blank">log a bug</a>
-		with the OS and browser if you see this on a device that is not mobile.
-		Thank you.</p>
-</div>
-
 <script src="libs/preloadjs-NEXT.min.js"></script>
 <script src="libs/soundjs-NEXT.min.js"></script>
 <script src="libs/tweenjs-NEXT.min.js"></script>
@@ -45,39 +22,45 @@
 <!-- We also provide hosted minified versions of all CreateJS libraries.
   http://code.createjs.com -->
 
+<!-- Game variables -->
+<script type="text/javascript">
+  var manifest;           // used to register sounds for preloading
+  var rockimages;         // rock images for preloading
+  
+  var preload;
+
+  var rockBelt;     //space rock array
+  var currRock;     // points to the falling rock
+
+  var canvas;     //Main canvas
+  var stage;      //Main display stage
+  var moribund;   // Pending death
+  var alive;      //wheter the player is alive
+
+  var gamePanel;      //a panel that contains every game object
+  var qPanel;         //a panel that holds currRock question
+  
+  var messageField;   //Message display field
+  var scoreField;     //score Field
+  var qEnglishField;
+  var qTextField;
+  var typingField;    //user input
+  var debugField;
+
+  var loadingInterval = 0;
+  
+  var freeze_counter = 0;
+  var MAX_FREEZE = 10;
+  
+  var score = 0;
+</script>
+
 <!-- Game script below -->
 <script type="text/javascript" src="rock.js"></script>
 <script type="text/javascript" src="question.js"></script>
 <script type="text/javascript" src="audiospritelist.js"></script>
 
-<script id="editable">
-	var manifest;           // used to register sounds for preloading
-	var rockimages;         // rock images for preloading
-	
-	var preload;
-
-	var rockBelt;			//space rock array
-	var currRock;     // points to the falling rock
-
-	var canvas;			//Main canvas
-	var stage;			//Main display stage
-  var moribund;   // Pending death
-	var alive;			//wheter the player is alive
-
-  var gamePanel;      //a panel that contains every game object
-  var qPanel;         //a panel that holds currRock question
-  
-	var messageField;		//Message display field
-	var scoreField;			//score Field
-
-  var qEnglishField;
-  var qTextField;
-	var typingField;    //user input
-
-	var loadingInterval = 0;
-	
-	var freeze_counter = 0;
-	var MAX_FREEZE = 10;
+<script id="gameplay">
 
 	//register key functions
 	document.onkeydown = handleKeyDown;
@@ -105,6 +88,13 @@
 		messageField.textBaseline = "middle";
 		messageField.x = canvas.width / 2;
 		messageField.y = canvas.height / 2;
+		
+    debugField = new createjs.Text("", "bold 20px Arial", "#FF0000");
+    debugField.maxWidth = 240;
+    debugField.textAlign = "left";
+    debugField.textBaseline = "middle";
+    debugField.x = 10;
+    debugField.y = 100;
 
 		stage.update(); 	//update the stage to show text
 
@@ -170,6 +160,7 @@
 	function watchRestart() {
 		//watch for clicks
 		stage.addChild(messageField);
+    stage.addChild(debugField);		
 		stage.update(); 	//update the stage to show text
 		canvas.onclick = handleClick;
 	}
@@ -258,6 +249,7 @@
     
     stage.addChild(typingField);		
 		stage.addChild(scoreField);
+    stage.addChild(debugField);		
 
 		//create the player
 		alive = true;
@@ -282,7 +274,7 @@
         freeze_counter--;
         if (freeze_counter == 0){
           gamePanel.removeChild(currRock);
-          scoreField.text = scoreField.text * 1 + currRock.question.text.length;
+          addScore(currRock.question.text.length);
           createjs.Sound.play("break", createjs.Sound.INTERRUPT_ANY);
         } else {
           stage.update(event);  // update other sub events
@@ -395,15 +387,10 @@
 		return false;
 	}
 
-  function pad(n, width, z) {
-    z = z || '0';
-    n = n + '';
-    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-  }
-
 	function addScore(value) {
 		//trust the field will have a number and add the score
-		scoreField.text = pad((Number(scoreField.text) + Number(value)).toString() , 6);
+		score += Number(value);
+		scoreField.text = score.toString();
 	}
 </script>
 

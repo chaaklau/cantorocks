@@ -1,6 +1,6 @@
 (function (window) {
   
-  var velocity = 6;
+  var velocity = 0;
   
   function Rock(){
     this.Container_constructor();
@@ -53,7 +53,9 @@
   }
   
   p.tick = function(event){
-        this.y += velocity; 
+    velocity = Math.log(score+1) * 1.5 + 3;
+    //debugField.text = velocity.toString();
+    this.y += velocity; 
   }
   p.freeze = function(rock_shape){
     
