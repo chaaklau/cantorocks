@@ -49,11 +49,11 @@
   }
 
   p.check = function(answer){
-    return answer.toLowerCase().replace(" ","") == this.question.lshk.replace(" ","");
+    return answer.toLowerCase().replace(" ","").replace(" ","") == this.question.lshk.replace(" ","").replace(" ","");
   }
   
   p.tick = function(event){
-    velocity = Math.log(Math.pow(score+10,2)) - 3.5;
+    velocity = Math.log(Math.pow(score+10,1.5)) - 5 + Math.pow(score,0.5);
     //debugField.text = velocity.toString();
     this.y += velocity; 
   }
