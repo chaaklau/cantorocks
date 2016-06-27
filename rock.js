@@ -53,7 +53,7 @@
   }
   
   p.tick = function(event){
-    velocity = Math.log(Math.pow(score+10,1.5)) - 5 + Math.pow(score,0.5);
+    velocity = Math.log(Math.pow(score+10,1.5)) - 4;
     //debugField.text = velocity.toString();
     this.y += velocity; 
   }
