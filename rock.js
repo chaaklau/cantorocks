@@ -48,8 +48,13 @@
     this.active = true;
   }
 
+  String.prototype.replaceAll = function(search, replacement) {
+      var target = this;
+      return target.replace(new RegExp(search, 'g'), replacement);
+  };
+
   p.check = function(answer){
-    return answer.toLowerCase().replace(" ","").replace(" ","") == this.question.lshk.replace(" ","").replace(" ","");
+    return answer.toLowerCase().replaceAll(" ","") == this.question.lshk.toLowerCase().replaceAll(" ","");
   }
   
   p.tick = function(event){
@@ -73,6 +78,7 @@
   
   window.Rock = createjs.promote(Rock, "Container");
 }(window));
+  
   
 
 
