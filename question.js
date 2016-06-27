@@ -1,4 +1,4 @@
-var MAX_Q = 200;
+var MAX_Q = 557;
 
 var BANK = [
 {"text":"阿Sir", "lshk":"aa soe", "sound":"cfe0001.mp3" , "english":"Sir"},

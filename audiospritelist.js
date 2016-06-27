@@ -1,5 +1,5 @@
-var words = {
-  "src": "output.ogg",
+var words = [{
+  "src": "sounds/output.ogg",
   "data": {
     "audioSprite": [
       {
@@ -2789,4 +2789,4 @@ var words = {
       }
     ]
   }
-};
+}];
