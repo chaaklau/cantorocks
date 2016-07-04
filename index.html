@@ -6,7 +6,27 @@
 
 	<link rel="stylesheet" type="text/css" href="assets/shared.css"/>
 	<link rel="stylesheet" type="text/css" href="assets/examples.css"/>
+	<style>
+	  @font-face {
+      font-family: Pixel;
+      src: url(assets/PressStart2P.ttf);
+    }
+	</style>
 	<script src="assets/examples.js"></script>
+
+  <!-- CreateJS related minified files -->
+  <script src="libs/preloadjs-NEXT.min.js"></script>
+  <script src="libs/soundjs-NEXT.min.js"></script>
+  <script src="libs/tweenjs-NEXT.min.js"></script>
+  <script src="libs/easeljs-NEXT.min.js"></script>
+
+	
+  <!-- Game script below -->
+  <script type="text/javascript" src="gameconfig.js"></script>
+  <script type="text/javascript" src="rock.js"></script>
+  <script type="text/javascript" src="question.js"></script>
+  <script type="text/javascript" src="gamestate.js"></script>
+  <script type="text/javascript" src="audiospritelist.js"></script>	
 </head>
 
 <body onload="init();" style="background-color:#000000; width:800px; height:500px; padding:0px; margin:0px;">
@@ -15,13 +35,6 @@
   <input id="dummytextbox" type="text" style="height:1px; background:transparent; border:0px; width:800px;"/>  
 	<canvas id="gameCanvas" width="800" height="480" style="background:black;"></canvas>
 </div>
-<script src="libs/preloadjs-NEXT.min.js"></script>
-<script src="libs/soundjs-NEXT.min.js"></script>
-<script src="libs/tweenjs-NEXT.min.js"></script>
-<script src="libs/easeljs-NEXT.min.js"></script>
-
-<!-- We also provide hosted minified versions of all CreateJS libraries.
-  http://code.createjs.com -->
 
 <!-- Game variables -->
 <script type="text/javascript">
@@ -36,14 +49,15 @@
 
   var canvas;     //Main canvas
   var stage;      //Main display stage
-  var moribund;   // Pending death
-  var alive;      //wheter the player is alive
-
+  
+  var pendingStart = false;
+  
   var gamePanel;      //a panel that contains every game object
   var qPanel;         //a panel that holds currRock question
   
   var messageField;   //Message display field
   var scoreField;     //score Field
+  var levelField;     //level Field
   var qEnglishField;
   var qTextField;
   var typingField;    //user input
@@ -57,16 +71,19 @@
   var score = 0;
 </script>
 
-<!-- Game script below -->
-<script type="text/javascript" src="rock.js"></script>
-<script type="text/javascript" src="question.js"></script>
-<script type="text/javascript" src="audiospritelist.js"></script>
+
+
+<div id="error">
+  <h1> Sorry &gt;_&lt; It looks like your browswer is not compatible.</h1>
+</div>
 
 <script id="gameplay">
 
 	//register key functions
 	document.onkeydown = handleKeyDown;
 	document.onkeyup = handleKeyUp;
+  var game;
+
 
 	function init() {
 		if (!createjs.Sound.initializeDefaultPlugins()) {
@@ -74,22 +91,30 @@
 			document.getElementById("content").style.display = "none";
 			return;
 		}
-/*
-		if (createjs.BrowserDetect.isIOS || createjs.BrowserDetect.isAndroid || createjs.BrowserDetect.isBlackberry) {
-			document.getElementById("mobile").style.display = "block";
-			document.getElementById("content").style.display = "none";
-			return;
-		}
-		*/
-
+    
 		canvas = document.getElementById("gameCanvas");
 		stage = new createjs.Stage(canvas);
-		messageField = new createjs.Text("Loading", "bold 24px Arial", "#FFFFFF");
-		messageField.maxWidth = 1000;
-		messageField.textAlign = "center";
-		messageField.textBaseline = "middle";
-		messageField.x = canvas.width / 2;
-		messageField.y = canvas.height / 2;
+		
+    instructionTitle = new createjs.Text("CantoRocks", "bold 36px Pixel", "#FFFFCC");
+    instructionTitle.textAlign = "left";
+    instructionTitle.textBaseline = "top";
+    instructionTitle.x = 30;
+    instructionTitle.y = 20;
+    
+		instructionField = new createjs.Text("", "bold 24px Pixel", "#FFFFFF");
+    instructionField.textAlign = "left";
+    instructionField.textBaseline = "top";
+    instructionField.lineWidth = 600;
+    instructionField.x = 30;
+    instructionField.y = 60;		
+    instructionField.text = "Jyutping giant is dropping rocks to the Earth. You need 1000 points to save the planet. There is one weak spot. When they attack, you will hear a word. Type the word in Jyutping and you can destroy the falling rock.";
+		
+		messageField = new createjs.Text("Loading", "bold 24px Pixel", "#FFCCFF");
+		messageField.maxWidth = 600;
+		messageField.textAlign = "right";
+		messageField.textBaseline = "bottom";
+		messageField.x = canvas.width - 10;
+		messageField.y = canvas.height -10;
 		
     debugField = new createjs.Text("", "bold 20px Arial", "#FF0000");
     debugField.maxWidth = 240;
@@ -98,9 +123,12 @@
     debugField.x = 10;
     debugField.y = 100;
 
-		stage.update(); 	//update the stage to show text
+    stage.addChild(messageField);
+    stage.addChild(instructionTitle);
+    stage.addChild(instructionField);
+		stage.update();
 
-		// begin loading content (only sounds to load)
+		// begin loading content
 		var assetsPath = "sounds/";
 		manifest = [
 			{id: "begin", src: "spawn.ogg"},
@@ -116,26 +144,20 @@
       {id: "rock2", src: "greyrock.png"}
     ];    
 
-    createjs.Sound.alternateExtensions = ["mp3"];
-    createjs.Sound.registerSounds(words);
-    createjs.Sound.on("fileload", doneLoading);
+    //createjs.Sound.alternateExtensions = ["mp3"];
     
 		preload = new createjs.LoadQueue(true, assetsPath);
 		preload.installPlugin(createjs.Sound);
-		//preload.addEventListener("complete", doneLoading); // add an event listener for when load is completed
-		//preload.addEventListener("progress", updateLoading);
 		preload.loadManifest(manifest);
 		
     preload2 = new createjs.LoadQueue(true, assetsPath2);
     preload2.loadManifest(rockimages);
-    		
-	}
-
-	function stop() {
-		if (preload != null) {
-			preload.close();
-		}
-		createjs.Sound.stop();
+    
+    preload3 = new createjs.LoadQueue(true, "");
+    preload3.installPlugin(createjs.Sound);
+    preload3.addEventListener("complete", doneLoading); // add an event listener for when load is completed
+    preload3.addEventListener("progress", updateLoading);
+    preload3.loadManifest(words);
 	}
 
 	function updateLoading() {
@@ -145,13 +167,9 @@
 
 	function doneLoading(event) {
 		clearInterval(loadingInterval);
-		scoreField = new createjs.Text("0", "bold 50px Dosis", "#FFFFFF");
-		scoreField.textAlign = "right";
-		scoreField.x = 220;
-		scoreField.y = 80;
-		scoreField.maxWidth = 300;
 
-		messageField.text = "Welcome: Click to play";
+		messageField.text = "Press Enter to continue...";
+    stage.update();   //update the stage to show text
 
 		// start the music
 		//createjs.Sound.play("music", {interrupt: createjs.Sound.INTERRUPT_NONE, loop: -1, volume: 0.05});
@@ -161,26 +179,13 @@
 
 	function watchRestart() {
 		//watch for clicks
-		stage.addChild(messageField);
-    stage.addChild(debugField);		
-		stage.update(); 	//update the stage to show text
-		canvas.onclick = handleClick;
-	}
-
-	function handleClick() {
-		//prevent extra clicks and hide text
-		canvas.onclick = null;
-		stage.removeChild(messageField);
-
-		// indicate the player is now on screen
-		createjs.Sound.play("begin");
-
-		restart();
+		pendingStart = true;
 	}
 
 	//reset all game logic
 	function restart() {
-		//hide anything on stage and show the score
+	  // indicate the player is now on screen
+    createjs.Sound.play("begin");
 		stage.removeAllChildren();
 
     var lp = new createjs.Bitmap("images/leftpanel.png");
@@ -204,20 +209,29 @@
 		gamePanel.width = canvas.width - 260;
 		gamePanel.height = canvas.height;
 		stage.addChild(gamePanel);   
-		
-    rockBelt = [];
-		
-		scoreField.text = (0).toString();
 
-    qTextField = new createjs.Text("", "bold 60px Helvetica", "#483C32");
-    qTextField.maxWidth = 1000;
+    levelField = new createjs.Text("Lv 0", "bold 20px Pixel", "#FFFFCC");
+    levelField.textAlign = "left";
+    levelField.x = 20;
+    levelField.y = 20;
+    levelField.maxWidth = 260;
+    
+    scoreField = new createjs.Text("0", "bold 40px Pixel", "#FFFFFF");
+    scoreField.textAlign = "right";
+    scoreField.x = 220;
+    scoreField.y = 100;
+    scoreField.maxWidth = 260;    
+
+
+    qTextField = new createjs.Text("", "bold 40px Pixel", "#483C32");
+    qTextField.maxWidth = 260;
     qTextField.textAlign = "center";
     qTextField.textBaseline = "middle";
     qTextField.x = 100;
-    qTextField.y = 150;        
+    qTextField.y = 160;        
 
-    qEnglishField = new createjs.Text("", "bold 20px Helvetica", "#832A0D");
-    qEnglishField.maxWidth = 1000;
+    qEnglishField = new createjs.Text("", "bold 15px Pixel", "#832A0D");
+    qEnglishField.maxWidth = 200;
     qEnglishField.textAlign = "center";
     qEnglishField.textBaseline = "middle";
     qEnglishField.x = 100;
@@ -238,110 +252,120 @@
     g.setStrokeStyle(3);
     g.beginStroke("#000000");
     g.beginFill("white");
-    g.drawRoundRect (40,380,180,40,8);
+    g.drawRoundRect (40,380,180,30,8);
     typingBox = new createjs.Shape(g);
     stage.addChild(typingBox);
 
-    typingField = new createjs.Text("", "bold 25px Courier", "#000000");
-    typingField.maxWidth = 1000;
+    typingField = new createjs.Text("", "bold 18px Courier", "#000000");
+    typingField.maxWidth = 260;
     typingField.textAlign = "left";
     typingField.textBaseline = "middle";
     typingField.x = 60;
-    typingField.y = 400;    
+    typingField.y = 394;    
     
     stage.addChild(typingField);		
 		stage.addChild(scoreField);
+    stage.addChild(levelField);		
     stage.addChild(debugField);		
-
-		//create the player
-		alive = true;
-		moribund = false;
-
-		//ensure stage is blank and add the ship
-		stage.clear();
+    stage.update();
 
 		//start game timer
 		if (!createjs.Ticker.hasEventListener("tick")) {
 			createjs.Ticker.addEventListener("tick", tick);
 		}
+		
+		//Game Logic below
+		game = new GameState();
+    //reset rockBelt
+    rockBelt = [];
 	}
 
 	function tick(event) {
-	  
-    if (alive && !moribund) {
-      
-      //Scenario 0: Rock removed
-      if (freeze_counter > 0) {
-        currRock.alpha = freeze_counter / MAX_FREEZE;
-        freeze_counter--;
-        if (freeze_counter == 0){
-          gamePanel.removeChild(currRock);
-          addScore(currRock.question.text.length);
-          createjs.Sound.play("break", createjs.Sound.INTERRUPT_ANY);
-        } else {
-          stage.update(event);  // update other sub events
-          return;          
-        }
-      }
-      
-      //Scenario 1: bottom reached
-      if (currRock) {
-        if (currRock.y + currRock.getBounds().height > canvas.height) {
-          currRock.freeze(preload2.getResult("rock2"));
-        }
-      }
-
-      //Scenario 2: check if it has reached other rocks
-      if (currRock) {
-        for (spaceRock in rockBelt) {
-          var r = rockBelt[spaceRock];
-          if (!r.launched) continue;
-          if (r == currRock) continue;
-          var x_dif = Math.abs(currRock.x - r.x);
-          var y_dif = Math.abs(currRock.y - r.y);
-          if (Math.sqrt ( (x_dif * 84 / 101) * (x_dif * 84/101) + y_dif * y_dif ) < 84) {
-            currRock.freeze(preload2.getResult("rock2")); //freeze the rock
-
-            // check whether the user has lost the game
-            if (currRock.y < 0) {
-              moribund = true;
-            }
-            break;    
+	  switch(game.getState()){
+	    case INIT_STATE:
+	      game.changeState(GAME_STATE); 
+	    case GAME_STATE: 
+        //Scenario 0: Rock removed
+        if (freeze_counter > 0) {
+          currRock.alpha = freeze_counter / MAX_FREEZE;
+          freeze_counter--;
+          if (freeze_counter == 0){
+            gamePanel.removeChild(currRock);
+            game.logAction(currRock.question,currRock.question.text.length);
+            scoreField.text = game.getScore().toString();
+            levelField.text = "Lv:" + game.getLevel().toString();
+            createjs.Sound.play("break", createjs.Sound.INTERRUPT_ANY);
+          } else {
+            stage.update(event);  // update other sub events
+            return;          
           }
         }
-      }  
+        
+        //Scenario 1: bottom reached
+        if (currRock) {
+          if (currRock.y + currRock.getBounds().height > canvas.height) {
+            currRock.freeze(preload2.getResult("rock2"));
+          }
+        }
   
-      if (!currRock || !currRock.active && alive && !moribund) {
-        typingField.text = "";
-        currRock = new Rock();
-        currRock.init(preload2.getResult("rock1"), new Question(Math.floor(Math.random()*MAX_Q)));
-        rockBelt.push(currRock);
-        gamePanel.addChild(currRock);
-        qEnglishField.text = currRock.question.english;
-        qTextField.text = currRock.question.text;
-        var inst = createjs.Sound.play(currRock.question.id, createjs.Sound.INTERRUPT_ANY);
-      }
-      
-      if (currRock.active && alive && !moribund) {
-        currRock.tick(event);     
-      }
-
-      //Officially ending the game        
-      if (moribund) {  // Only run once
-        alive = false;
-        moribund = false; // You are real dead now.
-        messageField.text = "You're dead:  Click or hit enter to play again";
-        stage.addChild(messageField);
-        watchRestart();
+        //Scenario 2: check if it has reached other rocks
+        if (currRock) {
+          for (spaceRock in rockBelt) {
+            var r = rockBelt[spaceRock];
+            if (!r.launched) continue;
+            if (r == currRock) continue;
+            var x_dif = Math.abs(currRock.x - r.x);
+            var y_dif = Math.abs(currRock.y - r.y);
+            if (Math.sqrt ( (x_dif * 84 / 101) * (x_dif * 84/101) + y_dif * y_dif ) < 84) {
+              currRock.freeze(preload2.getResult("rock2")); //freeze the rock
   
+              // check whether the user has lost the game
+              if (currRock.y < 0) {
+                game.changeState(ENDINGGAME_STATE);
+                break; 
+              }
+              break;    
+            }
+          }
+        }  
+    
+        //Generate new rock if no active rock
+        if (!currRock || !currRock.active) {
+          typingField.text = "";
+          currRock = new Rock();
+          currRock.init(preload2.getResult("rock1"), new Question(Math.floor(Math.random()*BANK.length)));
+          rockBelt.push(currRock);
+          gamePanel.addChild(currRock);
+          qEnglishField.text = currRock.question.english;
+          qTextField.text = currRock.question.text;
+          var inst = createjs.Sound.play(currRock.question.id, createjs.Sound.INTERRUPT_ANY);
+        }
+        
+        if (currRock.active) {
+          currRock.tick(event, game);     
+        }
+        //call sub ticks
+        stage.update(event);
+	    break;
+	    case ENDINGGAME_STATE: 
+        //Officially ending the game        
+        game.changeState(ENDGAME_STATE);
         //play death sound
         createjs.Sound.play("death", createjs.Sound.INTERRUPT_ANY);
-      }
-  
-      //call sub ticks
-      stage.update(event);
-      
-    }
+
+        var g = new createjs.Graphics();
+        g.beginFill("rgba(0, 0, 0, 0.8)").drawRect(260,0,canvas.width-260,canvas.height);
+        stage.addChild(new createjs.Shape(g));
+        
+        messageField.text = "You're dead:  Click or hit enter to play again";       
+        stage.addChild(messageField);    
+        stage.update(event);    
+	    break;
+	    case ENDGAME_STATE:
+        watchRestart();  	     
+	    break;
+	  }
+	  
 	}
 
 	//allow for WASD and arrow control scheme
@@ -350,6 +374,16 @@
 		if (!e) {
 			var e = window.event;
 		}
+		
+		if (pendingStart) {
+      switch (x) {
+        case 13:
+          pendingStart = false;     
+          restart();
+      }		  
+		  return false;
+		}
+		
 		var x = e.keyCode;
 		switch (x) {
 		  case 8:
@@ -357,9 +391,6 @@
 		    return false;
 			case 13:
 			  typingField.text = "";
-				if (canvas.onclick == handleClick) {
-					handleClick();
-				}
 				return false;
 		}
 		if (!e.altKey && !e.metaKey){
@@ -389,11 +420,6 @@
 		return false;
 	}
 
-	function addScore(value) {
-		//trust the field will have a number and add the score
-		score += Number(value);
-		scoreField.text = score.toString();
-	}
 </script>
 
 </body>

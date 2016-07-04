@@ -1,7 +1,5 @@
 (function (window) {
   
-  var velocity = 0;
-  
   function Rock(){
     this.Container_constructor();
   
@@ -9,11 +7,10 @@
     this.launched = false;
     this.question = null;
     this.x = Math.random() * (540 - 80);
-    this.y = -100;  
+    this.y = -50;  
   }
 
   var p = createjs.extend(Rock, createjs.Container);
-  
   
   p.active;
   p.launched;
@@ -30,7 +27,7 @@
     this.rock.x = 0;
     this.rock.y = 0;
 
-    this.label = new createjs.Text(q.text, "20px Helvetica", "#FFFFCC");
+    this.label = new createjs.Text(q.text, "15px Pixel", "#FFFFCC");
     this.label.maxWidth = 80;
     this.label.textAlign = "center";
     this.label.textBaseline = "middle";
@@ -46,7 +43,7 @@
     
     this.launched = true;
     this.active = true;
-  }
+  };
 
   String.prototype.replaceAll = function(search, replacement) {
       var target = this;
@@ -55,13 +52,14 @@
 
   p.check = function(answer){
     return answer.toLowerCase().replaceAll(" ","") == this.question.lshk.toLowerCase().replaceAll(" ","");
-  }
+  };
   
-  p.tick = function(event){
-    velocity = Math.log(Math.pow(score+10,1.5)) - 4;
-    //debugField.text = velocity.toString();
+  p.tick = function(event, game){
+    var velocity = getVelocity(game.getLevel()) / Math.pow(this.question.text.length, 0.5);
+    //debugField.text = "Lv." + game.getLevel().toString() + " V: " + velocity.toString();
     this.y += velocity; 
-  }
+  };
+  
   p.freeze = function(rock_shape){
     
     this.active = false;
@@ -74,7 +72,7 @@
     this.label.color = "#DDDDDD";
     this.label.text = this.question.lshk;
     this.addChild(this.label);    
-  }
+  };
   
   window.Rock = createjs.promote(Rock, "Container");
 }(window));

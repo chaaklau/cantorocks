@@ -1,5 +1,3 @@
-var MAX_Q = 557;
-
 var BANK = [
 {"text":"阿Sir", "lshk":"aa soe", "sound":"cfe0001.mp3" , "english":"Sir"},
 {"text":"歡迎", "lshk":"fun jing", "sound":"cfe0002.mp3" , "english":"to welcome"},
@@ -417,7 +415,7 @@ var BANK = [
 {"text":"火腿", "lshk":"fo teoi", "sound":"cfe0414.mp3" , "english":"ham"},
 {"text":"叫做", "lshk":"giu zou", "sound":"cfe0415.mp3" , "english":"named; known as"},
 {"text":"嗰啲", "lshk":"go di", "sound":"cfe0416.mp3" , "english":"that; those"},
-{"text":"嗰個", "lshk":"go wai", "sound":"cfe0417.mp3" , "english":"that person"},
+{"text":"嗰個", "lshk":"go go", "sound":"cfe0417.mp3" , "english":"that person"},
 {"text":"覺得", "lshk":"gok dak", "sound":"cfe0418.mp3" , "english":"to think; to feel"},
 {"text":"港式", "lshk":"Gong sik", "sound":"cfe0419.mp3" , "english":"HK style"},
 {"text":"香腸", "lshk":"hoeng coeng", "sound":"cfe0420.mp3" , "english":"sausage"},
@@ -571,5 +569,5 @@ function Question(id){
 
 Question.prototype.check = function(attempt) {
   return this.lshk == attempt;
-}
+};
 
