@@ -1,3 +1,8 @@
+@font-face {
+  font-family: Pixel;
+  src: url(PressStart2P.ttf);
+}
+
 body {
 	width: 960px;
 }

@@ -6,12 +6,6 @@
 
 	<link rel="stylesheet" type="text/css" href="assets/shared.css"/>
 	<link rel="stylesheet" type="text/css" href="assets/examples.css"/>
-	<style>
-	  @font-face {
-      font-family: Pixel;
-      src: url(assets/PressStart2P.ttf);
-    }
-	</style>
 	<script src="assets/examples.js"></script>
 
   <!-- CreateJS related minified files -->
@@ -20,7 +14,6 @@
   <script src="libs/tweenjs-NEXT.min.js"></script>
   <script src="libs/easeljs-NEXT.min.js"></script>
 
-	
   <!-- Game script below -->
   <script type="text/javascript" src="gameconfig.js"></script>
   <script type="text/javascript" src="rock.js"></script>
@@ -357,7 +350,7 @@
         g.beginFill("rgba(0, 0, 0, 0.8)").drawRect(260,0,canvas.width-260,canvas.height);
         stage.addChild(new createjs.Shape(g));
         
-        messageField.text = "You're dead:  Click or hit enter to play again";       
+        messageField.text = "You're dead. Hit enter to play again";       
         stage.addChild(messageField);    
         stage.update(event);    
 	    break;
@@ -374,6 +367,8 @@
 		if (!e) {
 			var e = window.event;
 		}
+
+    var x = e.keyCode;
 		
 		if (pendingStart) {
       switch (x) {
@@ -383,14 +378,16 @@
       }		  
 		  return false;
 		}
-		
-		var x = e.keyCode;
+
 		switch (x) {
 		  case 8:
 		    typingField.text = typingField.text.substr(0,typingField.text.length-1);
 		    return false;
 			case 13:
 			  typingField.text = "";
+				if (canvas.onclick == handleClick) {
+					handleClick();
+				}
 				return false;
 		}
 		if (!e.altKey && !e.metaKey){
