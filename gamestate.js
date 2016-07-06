@@ -6,12 +6,26 @@
   
   function GameState(){
     var state = INIT_STATE;
+    var pause_state = false;
     var history = [];
+    var combo = 0;
 
     //Privileged methods
     
     this.getState = function(){
       return state;
+    };
+    
+    this.pause = function(){
+      pause_state = true;
+    };
+    
+    this.unpause = function(){
+      pause_state = false;
+    };
+    
+    this.isPaused = function(){
+      return pause_state;
     };
     
     this.changeState = function(newState){
@@ -27,7 +41,21 @@
 	  
   	this.logAction = function(question, score){
   	  history.push({"question":question, "score":score});
+  	  if (!score) {
+  	    combo = 0;
+  	  } else {
+  	    combo++;
+  	  }
   	};
+
+    this.getCombo = function(){
+      return combo;
+    };
+    
+    this.getComboString = function() {
+      if (!combo) return "";
+      return combo.toString() + " Combo" + (combo>1?"s":"");
+    };
 	
     this.getScore = function(){
   	  var sum = 0;

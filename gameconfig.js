@@ -1,13 +1,9 @@
-var VELOCITIES = [1,1.5,2,4,7,12,20]; 
-var LEVELBOUND = [0,32,64,128,256,512,768,9999999];
-//var LEVELBOUND = [0,0,0,0,1,2,9999999];
+var MAX_LEVEL = 5;
+var VELOCITIES = [1,1.5,3,6,10]; 
+//var LEVELBOUND = [0,32,64,128,256,512];
+var LEVELBOUND = [0,10,64,128,256,512];
 
 function getVelocity(level){
-  try {
-    return VELOCITIES[level-1];
-  } 
-  catch (e) {
-    return VELOCITIES[VELOCITIES.length-1];
-  }
-  return false;
+  if (level < MAX_LEVEL) return VELOCITIES[level-1];
+  return 0;
 }

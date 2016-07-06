@@ -16,6 +16,7 @@
 
   <!-- Game script below -->
   <script type="text/javascript" src="gameconfig.js"></script>
+  <script type="text/javascript" src="msgbox.js"></script>
   <script type="text/javascript" src="rock.js"></script>
   <script type="text/javascript" src="question.js"></script>
   <script type="text/javascript" src="gamestate.js"></script>
@@ -29,8 +30,11 @@
 	<canvas id="gameCanvas" width="800" height="480" style="background:black;"></canvas>
 </div>
 
-<!-- Game variables -->
-<script type="text/javascript">
+<div id="error">
+  <h1> Sorry &gt;_&lt; It looks like your browswer is not compatible.</h1>
+</div>
+
+<script type="text/javascript" id="gameplay">
   document.getElementById("dummytextbox").focus();
   var manifest;           // used to register sounds for preloading
   var rockimages;         // rock images for preloading
@@ -47,7 +51,8 @@
   
   var gamePanel;      //a panel that contains every game object
   var qPanel;         //a panel that holds currRock question
-  
+
+  var backdrop;  
   var messageField;   //Message display field
   var scoreField;     //score Field
   var levelField;     //level Field
@@ -57,20 +62,10 @@
   var debugField;
 
   var loadingInterval = 0;
+  var showingMsg = null;
   
   var freeze_counter = 0;
   var MAX_FREEZE = 10;
-  
-  var score = 0;
-</script>
-
-
-
-<div id="error">
-  <h1> Sorry &gt;_&lt; It looks like your browswer is not compatible.</h1>
-</div>
-
-<script id="gameplay">
 
 	//register key functions
 	document.onkeydown = handleKeyDown;
@@ -87,20 +82,24 @@
     
 		canvas = document.getElementById("gameCanvas");
 		stage = new createjs.Stage(canvas);
+		stage.width = canvas.width;
+		stage.height = canvas.height;
 		
+    createjs.Ticker.setFPS(120);  //TODO: Change it to 60 for production
+    
     instructionTitle = new createjs.Text("CantoRocks", "bold 36px Pixel", "#FFFFCC");
     instructionTitle.textAlign = "left";
     instructionTitle.textBaseline = "top";
     instructionTitle.x = 30;
     instructionTitle.y = 20;
     
-		instructionField = new createjs.Text("", "bold 24px Pixel", "#FFFFFF");
+		instructionField = new createjs.Text("", "20px Pixel", "#FFFFFF");
     instructionField.textAlign = "left";
     instructionField.textBaseline = "top";
     instructionField.lineWidth = 600;
     instructionField.x = 30;
     instructionField.y = 60;		
-    instructionField.text = "Jyutping giant is dropping rocks to the Earth. You need 1000 points to save the planet. There is one weak spot. When they attack, you will hear a word. Type the word in Jyutping and you can destroy the falling rock.";
+    instructionField.text = "Jyutping giant is dropping rocks to the Earth! You need 512 points to save the planet. There is one weak spot. When they attack, you will hear a word. Type the word in Jyutping and you can destroy the falling rock.\n\nThis monster is bad at music, you can skip the spacebar and tone numbers.";
 		
 		messageField = new createjs.Text("Loading", "bold 24px Pixel", "#FFCCFF");
 		messageField.maxWidth = 600;
@@ -124,17 +123,18 @@
 		// begin loading content
 		var assetsPath = "sounds/";
 		manifest = [
-			{id: "begin", src: "spawn.ogg"},
-			{id: "break", src: "break.ogg", data: 6},
-			{id: "death", src: "death.ogg"},
-			{id: "laser", src: "shot.ogg", data: 6},
-			{id: "music", src: "music.ogg"}
+			{id: "break", src: "correct.ogg"},
+			{id: "death", src: "dead.ogg"},
+			{id: "hit", src: "wrong.ogg"},
+			{id: "levelup", src: "levelup.ogg"}
 		];
 
     var assetsPath2 = "images/";
     rockimages = [
       {id: "rock1", src: "brownrock.png"},
-      {id: "rock2", src: "greyrock.png"}
+      {id: "rock2", src: "greyrock.png"},
+      {id: "lpbg", src: "leftpanel.png"},
+      {id: "sun", src: "sun.png"}
     ];    
 
     //createjs.Sound.alternateExtensions = ["mp3"];
@@ -160,12 +160,30 @@
 
 	function doneLoading(event) {
 		clearInterval(loadingInterval);
-
 		messageField.text = "Press Enter to continue...";
     stage.update();   //update the stage to show text
 
-		// start the music
-		//createjs.Sound.play("music", {interrupt: createjs.Sound.INTERRUPT_NONE, loop: -1, volume: 0.05});
+    //Set up back-drop
+    
+    var lp = new createjs.Bitmap(preload2.getResult("lpbg"));
+    lp.name = "leftpanelbg";
+    lp.x = 0;
+    lp.y = 0;
+    lp.scaleX = 260 / 64;
+    lp.scaleY = 480 / 64;
+    
+    var bg = new createjs.Shape(new createjs.Graphics().beginFill("#87ceeb").drawRect (0,0,540,480));
+    bg.x = 260;
+    bg.y = 0;
+    bg.name = "bg"
+
+    backdrop = new createjs.Container();
+    backdrop.x = 0;
+    backdrop.y = 0;
+    backdrop.width = canvas.width;
+    backdrop.height = canvas.height;
+    backdrop.addChild(lp);
+    backdrop.addChild(bg);   
 
 		watchRestart();
 	}
@@ -180,22 +198,8 @@
 	  // indicate the player is now on screen
     createjs.Sound.play("begin");
 		stage.removeAllChildren();
-
-    var lp = new createjs.Bitmap("images/leftpanel.png");
-    lp.x = 0;
-    lp.y = 0;
-    lp.scaleX = 260 / 64;
-    lp.scaleY = 480 / 64;
-		
-    var bg = new createjs.Bitmap("images/background.png");
-    bg.x = 260;
-    bg.y = 0;
-    bg.scaleX = 0.7;
-    bg.scaleY = 1;
-  
-    stage.addChild(lp);
-    stage.addChild(bg);		
-		
+    stage.addChild(backdrop);
+    		
 		gamePanel = new createjs.Container();
 		gamePanel.x = 260;
 		gamePanel.y = 0;
@@ -215,6 +219,12 @@
     scoreField.y = 100;
     scoreField.maxWidth = 260;    
 
+    comboField = new createjs.Text("", "20px Pixel", "#802222");
+    comboField.textAlign = "center";
+    comboField.textBaseline = "top";
+    comboField.x = 130;
+    comboField.y = 170;
+    comboField.maxWidth = 260;
 
     qTextField = new createjs.Text("", "bold 40px Pixel", "#483C32");
     qTextField.maxWidth = 260;
@@ -258,6 +268,7 @@
     
     stage.addChild(typingField);		
 		stage.addChild(scoreField);
+		stage.addChild(comboField);
     stage.addChild(levelField);		
     stage.addChild(debugField);		
     stage.update();
@@ -274,19 +285,42 @@
 	}
 
 	function tick(event) {
+	  if (game.isPaused()) return;
 	  switch(game.getState()){
 	    case INIT_STATE:
 	      game.changeState(GAME_STATE); 
 	    case GAME_STATE: 
-        //Scenario 0: Rock removed
+        //Scenario 0: Rock recently removed
         if (freeze_counter > 0) {
           currRock.alpha = freeze_counter / MAX_FREEZE;
           freeze_counter--;
           if (freeze_counter == 0){
             gamePanel.removeChild(currRock);
+            var beforeLevel = game.getLevel();
             game.logAction(currRock.question,currRock.question.text.length);
             scoreField.text = game.getScore().toString();
+            comboField.text = game.getComboString();
             levelField.text = "Lv:" + game.getLevel().toString();
+            if (beforeLevel < game.getLevel()) {
+              // Level up
+              createjs.Sound.play("levelup", createjs.Sound.INTERRUPT_ANY);              
+              showingMsg = new MsgBox();
+              showingMsg.init("Level up!!!", "Congratulations!\nYou have reached Level " + game.getLevel() + "!\nPress Enter to Continue ...");
+              showingMsg.show();
+              stage.addChild(showingMsg);
+              game.pause();
+              // TODO: Clear the screen
+              for (rock in rockBelt){
+                stage.remove(rockBelt[rock]);
+              }
+              // TODO: Make scene change
+              backdrop.alpha *= 0.9;
+            }
+            //TODO: Add bonus items to the screen based on score  e.g. one item for every 20 marks (?) - 25 items needed.
+            var bg_item = new createjs.Bitmap(preload2.getResult("sun"));
+            bg_item.x = 280 + Math.random()  * 400;
+            bg_item.y = Math.random()  * 400;
+            backdrop.addChild(bg_item);
             createjs.Sound.play("break", createjs.Sound.INTERRUPT_ANY);
           } else {
             stage.update(event);  // update other sub events
@@ -298,6 +332,9 @@
         if (currRock) {
           if (currRock.y + currRock.getBounds().height > canvas.height) {
             currRock.freeze(preload2.getResult("rock2"));
+            createjs.Sound.play("hit", createjs.Sound.INTERRUPT_ANY);
+            game.logAction(currRock.question, 0);
+            comboField.text = game.getComboString();            
           }
         }
   
@@ -311,7 +348,9 @@
             var y_dif = Math.abs(currRock.y - r.y);
             if (Math.sqrt ( (x_dif * 84 / 101) * (x_dif * 84/101) + y_dif * y_dif ) < 84) {
               currRock.freeze(preload2.getResult("rock2")); //freeze the rock
-  
+              createjs.Sound.play("hit", createjs.Sound.INTERRUPT_ANY);
+              game.logAction(currRock.question, 0);
+              comboField.text = game.getComboString();
               // check whether the user has lost the game
               if (currRock.y < 0) {
                 game.changeState(ENDINGGAME_STATE);
@@ -344,7 +383,7 @@
         //Officially ending the game        
         game.changeState(ENDGAME_STATE);
         //play death sound
-        createjs.Sound.play("death", createjs.Sound.INTERRUPT_ANY);
+        createjs.Sound.play("dead", createjs.Sound.INTERRUPT_ANY);
 
         var g = new createjs.Graphics();
         g.beginFill("rgba(0, 0, 0, 0.8)").drawRect(260,0,canvas.width-260,canvas.height);
@@ -358,7 +397,6 @@
         watchRestart();  	     
 	    break;
 	  }
-	  
 	}
 
 	//allow for WASD and arrow control scheme
@@ -369,42 +407,45 @@
 		}
 
     var x = e.keyCode;
-		
-		if (pendingStart) {
-      switch (x) {
-        case 13:
-          pendingStart = false;     
-          restart();
-      }		  
-		  return false;
-		}
-
-		switch (x) {
-		  case 8:
-		    typingField.text = typingField.text.substr(0,typingField.text.length-1);
-		    return false;
-			case 13:
-			  typingField.text = "";
-				if (canvas.onclick == handleClick) {
-					handleClick();
-				}
-				return false;
-		}
 		if (!e.altKey && !e.metaKey){
-  		  if (x == 32 || x >= 65 && x <= 90){
-  		  typingField.text = typingField.text + String.fromCharCode(x).toLowerCase();
-  		  
-  		  if (currRock) {
-  		    if (currRock.check(typingField.text)) {  		      
-  		      var index = rockBelt.indexOf(currRock);
-  		      rockBelt.splice(index,1);
-  		      currRock.active = false;
-            freeze_counter = MAX_FREEZE;
-  		    }  
-  		  }
+  		if (pendingStart || showingMsg) {
+        switch (x) {
+          case 13:
+            if (pendingStart) {restart(); pendingStart = false;}
+            if (showingMsg != null) {showingMsg.hide(); stage.removeChild(showingMsg); showingMsg = null; game.unpause();}
+        }		  
   		  return false;
   		}
-		}
+    }
+    
+    if (game && game.getState() == GAME_STATE) {
+      switch (x) {
+        case 8:
+          typingField.text = typingField.text.substr(0,typingField.text.length-1);
+          return false;
+        case 13:
+          typingField.text = "";
+          if (canvas.onclick == handleClick) {
+            handleClick();
+          }
+          return false;
+      }
+      if (!e.altKey && !e.metaKey){
+          if (x == 32 || x >= 65 && x <= 90){
+          typingField.text = typingField.text + String.fromCharCode(x).toLowerCase();
+          
+          if (currRock) {
+            if (currRock.check(typingField.text)) {           
+              var index = rockBelt.indexOf(currRock);
+              rockBelt.splice(index,1);
+              currRock.active = false;
+              freeze_counter = MAX_FREEZE;
+            }  
+          }
+          return false;
+        }
+      }
+    }
 	}
 
 	function handleKeyUp(e) {
@@ -416,7 +457,6 @@
 		}
 		return false;
 	}
-
 </script>
 
 </body>
