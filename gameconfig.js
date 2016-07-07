@@ -1,5 +1,5 @@
 var MAX_LEVEL = 5;
-var VELOCITIES = [1,1.5,3,6,10]; 
+var VELOCITIES = [1,1.5,2,3,6]; 
 var LEVELBOUND = [0,32,64,128,256,512];
 
 function getVelocity(level){

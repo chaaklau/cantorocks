@@ -165,13 +165,14 @@
 
     //Set up back-drop
     
-    var lp = new createjs.Bitmap(preload2.getResult("lpbg"));
+    var lp = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("lpbg")).drawRect(0,0,260,480));
     lp.name = "leftpanelbg";
+    /*
     lp.x = 0;
     lp.y = 0;
     lp.scaleX = 260 / 64;
     lp.scaleY = 480 / 64;
-    
+    */
     var bg = new createjs.Shape(new createjs.Graphics().beginFill("#87ceeb").drawRect (0,0,540,480));
     bg.x = 260;
     bg.y = 0;
