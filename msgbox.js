@@ -3,10 +3,10 @@
   function MsgBox(){
     this.Container_constructor();
     
-    this.x = 80;
-    this.y = 100;
-    this.width = 620;
-    this.height = 200;
+    this.x = 0;
+    this.y = 240;
+    this.width = 800;
+    this.height = 240;
     this.title = "";
     this.message = "";  
   }

@@ -5,6 +5,7 @@
   
     this.active = false;
     this.launched = false;
+    this.stuck = false;
     this.question = null;
     this.x = Math.random() * (540 - 80);
     this.y = -50;  
@@ -62,6 +63,7 @@
   p.freeze = function(rock_shape){
     
     this.active = false;
+    this.stuck = true;
     this.removeChild(this.rock);
     this.rock = new createjs.Bitmap(rock_shape);
     this.rock.x = 0;
@@ -70,6 +72,7 @@
     this.removeChild(this.label);
     this.label.color = "#DDDDDD";
     this.label.text = this.question.lshk;
+    this.label.maxWidth = 80;
     this.addChild(this.label);    
   };
   

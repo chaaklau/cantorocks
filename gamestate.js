@@ -68,7 +68,7 @@
     this.getLevel = function(){
       var s = this.getScore();
       for (x in LEVELBOUND){
-        if (s < LEVELBOUND[x]) return x;        
+        if (s < LEVELBOUND[x]) return x*1;        
       }
       return -1;
     };

@@ -85,7 +85,7 @@
 		stage.width = canvas.width;
 		stage.height = canvas.height;
 		
-    createjs.Ticker.setFPS(120);  //TODO: Change it to 60 for production
+    createjs.Ticker.setFPS(60);  //TODO: Change it to 60 for production
     
     instructionTitle = new createjs.Text("CantoRocks", "bold 36px Pixel", "#FFFFCC");
     instructionTitle.textAlign = "left";
@@ -175,7 +175,7 @@
     var bg = new createjs.Shape(new createjs.Graphics().beginFill("#87ceeb").drawRect (0,0,540,480));
     bg.x = 260;
     bg.y = 0;
-    bg.name = "bg"
+    bg.name = "bg";
 
     backdrop = new createjs.Container();
     backdrop.x = 0;
@@ -183,7 +183,8 @@
     backdrop.width = canvas.width;
     backdrop.height = canvas.height;
     backdrop.addChild(lp);
-    backdrop.addChild(bg);   
+    backdrop.addChild(bg);
+    backdrop.moveables = [];   
 
 		watchRestart();
 	}
@@ -198,6 +199,13 @@
 	  // indicate the player is now on screen
     createjs.Sound.play("begin");
 		stage.removeAllChildren();
+    // delete all moveable items from backdrop
+    for (var x in backdrop.moveables){
+      backdrop.removeChild(backdrop.moveables[x]);
+    }
+    backdrop.moveables = [];
+
+
     stage.addChild(backdrop);
     		
 		gamePanel = new createjs.Container();
@@ -285,84 +293,16 @@
 	}
 
 	function tick(event) {
+    for (x in backdrop.moveables){
+      backdrop.moveables[x].tick();
+    }	    
 	  if (game.isPaused()) return;
 	  switch(game.getState()){
 	    case INIT_STATE:
 	      game.changeState(GAME_STATE); 
 	    case GAME_STATE: 
-        //Scenario 0: Rock recently removed
-        if (freeze_counter > 0) {
-          currRock.alpha = freeze_counter / MAX_FREEZE;
-          freeze_counter--;
-          if (freeze_counter == 0){
-            gamePanel.removeChild(currRock);
-            var beforeLevel = game.getLevel();
-            game.logAction(currRock.question,currRock.question.text.length);
-            scoreField.text = game.getScore().toString();
-            comboField.text = game.getComboString();
-            levelField.text = "Lv:" + game.getLevel().toString();
-            if (beforeLevel < game.getLevel()) {
-              // Level up
-              createjs.Sound.play("levelup", createjs.Sound.INTERRUPT_ANY);              
-              showingMsg = new MsgBox();
-              showingMsg.init("Level up!!!", "Congratulations!\nYou have reached Level " + game.getLevel() + "!\nPress Enter to Continue ...");
-              showingMsg.show();
-              stage.addChild(showingMsg);
-              game.pause();
-              // TODO: Clear the screen
-              for (rock in rockBelt){
-                stage.remove(rockBelt[rock]);
-              }
-              // TODO: Make scene change
-              backdrop.alpha *= 0.9;
-            }
-            //TODO: Add bonus items to the screen based on score  e.g. one item for every 20 marks (?) - 25 items needed.
-            var bg_item = new createjs.Bitmap(preload2.getResult("sun"));
-            bg_item.x = 280 + Math.random()  * 400;
-            bg_item.y = Math.random()  * 400;
-            backdrop.addChild(bg_item);
-            createjs.Sound.play("break", createjs.Sound.INTERRUPT_ANY);
-          } else {
-            stage.update(event);  // update other sub events
-            return;          
-          }
-        }
-        
-        //Scenario 1: bottom reached
-        if (currRock) {
-          if (currRock.y + currRock.getBounds().height > canvas.height) {
-            currRock.freeze(preload2.getResult("rock2"));
-            createjs.Sound.play("hit", createjs.Sound.INTERRUPT_ANY);
-            game.logAction(currRock.question, 0);
-            comboField.text = game.getComboString();            
-          }
-        }
-  
-        //Scenario 2: check if it has reached other rocks
-        if (currRock) {
-          for (spaceRock in rockBelt) {
-            var r = rockBelt[spaceRock];
-            if (!r.launched) continue;
-            if (r == currRock) continue;
-            var x_dif = Math.abs(currRock.x - r.x);
-            var y_dif = Math.abs(currRock.y - r.y);
-            if (Math.sqrt ( (x_dif * 84 / 101) * (x_dif * 84/101) + y_dif * y_dif ) < 84) {
-              currRock.freeze(preload2.getResult("rock2")); //freeze the rock
-              createjs.Sound.play("hit", createjs.Sound.INTERRUPT_ANY);
-              game.logAction(currRock.question, 0);
-              comboField.text = game.getComboString();
-              // check whether the user has lost the game
-              if (currRock.y < 0) {
-                game.changeState(ENDINGGAME_STATE);
-                break; 
-              }
-              break;    
-            }
-          }
-        }  
-    
         //Generate new rock if no active rock
-        if (!currRock || !currRock.active) {
+        if (!currRock) {
           typingField.text = "";
           currRock = new Rock();
           currRock.init(preload2.getResult("rock1"), new Question(Math.floor(Math.random()*BANK.length)));
@@ -372,8 +312,90 @@
           qTextField.text = currRock.question.text;
           var inst = createjs.Sound.play(currRock.question.id, createjs.Sound.INTERRUPT_ANY);
         }
+
+        //Scenario 1: bottom reached
+        if (currRock && (currRock.y + currRock.getBounds().height > canvas.height)) {
+          freezeCurrRock();
+        }
+  
+        //Scenario 2: check if it has reached other rocks
+        if (currRock && rockBelt.length > 1) {
+          for (spaceRock in rockBelt) {
+            var r = rockBelt[spaceRock];
+            if (!r.launched  ||  r == currRock) continue;
+            var x_dif = Math.abs(currRock.x - r.x); var y_dif = Math.abs(currRock.y - r.y);
+            if (Math.sqrt ( (x_dif * 84 / 101) * (x_dif * 84/101) + y_dif * y_dif ) < 84) {
+              // check whether the user has lost the game
+              if (currRock.y < 0) { game.changeState(ENDINGGAME_STATE); freezeCurrRock(); break; }
+              freezeCurrRock();                 
+              break;    
+            }
+          }
+        }
+	    
+        //Scenario 0: Rock recently removed
+        if (currRock && freeze_counter == 0 && !currRock.active && !currRock.stuck) {  
+          var beforeLevel = game.getLevel();
+          var beforeScoreAdj = Math.floor(game.getScore() * 0.05);
+          game.logAction(currRock.question,currRock.question.text.length);
+          gamePanel.removeChild(currRock);
+          createjs.Sound.play("break", createjs.Sound.INTERRUPT_ANY);
+          currRock = null;
+          scoreField.text = game.getScore().toString();
+          comboField.text = game.getComboString();
+          levelField.text = "Lv:" + game.getLevel().toString();
+          if (beforeLevel < game.getLevel()) {
+            // Level up
+            createjs.Sound.play("levelup", createjs.Sound.INTERRUPT_ANY);
+            for (rock in rockBelt){
+              stage.removeChild(rockBelt[rock]);
+            }            
+
+            if (game.getLevel() == MAX_LEVEL) {
+              game.changeState(ENDINGGAME_STATE);
+              break; 
+            }              
+            showingMsg = new MsgBox();
+            showingMsg.init("Level up!!!", "Congratulations!\nYou have reached Level " + game.getLevel() + "!\n\nPress Enter to Continue ...");
+            showingMsg.show();
+            stage.addChild(showingMsg);
+            game.pause();
+            // TODO: Make scene change
+          }
+          var afterScoreAdj = Math.floor(game.getScore() * 0.05);
+          if (beforeScoreAdj < afterScoreAdj){
+            //TODO: Add bonus items to the screen based on score  e.g. one item for every 20 marks (?) - 25 items needed.
+            var bg_item = new createjs.Bitmap(preload2.getResult("bg"+afterScoreAdj));
+            backdrop.addChild(bg_item);
+            
+            switch (afterScoreAdj){
+              //set up special items, like rotating sun, etc.
+              case 1:
+                var bg_item = new createjs.Bitmap(preload2.getResult("sun"));
+                bg_item.x = 730;
+                bg_item.y = 50;
+                bg_item.name = "sun";
+                bg_item.scaleX = 1.5;
+                bg_item.scaleY = 1.5;
+                bg_item.regX = bg_item.getBounds().width / 2;
+                bg_item.regY = bg_item.getBounds().height / 2;
+                backdrop.addChild(bg_item);
+                bg_item.tick = function(event, game){
+                  this.rotation += 0.5; 
+                };
+                backdrop.moveables.push(bg_item);
+                break;
+            }
+          }
+        }
         
-        if (currRock.active) {
+        //Scenario 0': rock disappearing
+        if (currRock && freeze_counter > 0) {
+          currRock.alpha = freeze_counter / MAX_FREEZE;
+          freeze_counter--;
+        }
+
+        if (currRock && currRock.active) {
           currRock.tick(event, game);     
         }
         //call sub ticks
@@ -382,15 +404,27 @@
 	    case ENDINGGAME_STATE: 
         //Officially ending the game        
         game.changeState(ENDGAME_STATE);
-        //play death sound
-        createjs.Sound.play("dead", createjs.Sound.INTERRUPT_ANY);
 
-        var g = new createjs.Graphics();
-        g.beginFill("rgba(0, 0, 0, 0.8)").drawRect(260,0,canvas.width-260,canvas.height);
-        stage.addChild(new createjs.Shape(g));
-        
-        messageField.text = "You're dead. Hit enter to play again";       
-        stage.addChild(messageField);    
+        if (game.getLevel() < MAX_LEVEL) {
+          createjs.Sound.play("dead", createjs.Sound.INTERRUPT_ANY); 
+          //var g = new createjs.Graphics();
+          //g.beginFill("rgba(0, 0, 0, 0.8)").drawRect(260,0,canvas.width-260,canvas.height);
+          //stage.addChild(new createjs.Shape(g));
+          //messageField.text = "You're dead. Hit enter to play again";       
+          //stage.addChild(messageField);
+          showingMsg = new MsgBox();
+          showingMsg.init("Game Over","The monster has destroyed the Earth!!!\n\nPress Enter to switch on the Time Machine ...");
+          showingMsg.show();
+          stage.addChild(showingMsg);
+          game.pause();         
+        } else {
+          createjs.Sound.play("levelup", createjs.Sound.INTERRUPT_ANY);              
+          showingMsg = new MsgBox();
+          showingMsg.init("Congratuations","You've defeated the Monster!!!\n\nPress Enter to Continue ...");
+          showingMsg.show();
+          stage.addChild(showingMsg);
+          game.pause();          
+        }
         stage.update(event);    
 	    break;
 	    case ENDGAME_STATE:
@@ -399,7 +433,6 @@
 	  }
 	}
 
-	//allow for WASD and arrow control scheme
 	function handleKeyDown(e) {
 		//cross browser issues exist
 		if (!e) {
@@ -411,8 +444,13 @@
   		if (pendingStart || showingMsg) {
         switch (x) {
           case 13:
+            if (showingMsg != null) {
+              showingMsg.hide(); stage.removeChild(showingMsg); showingMsg = null; game.unpause(); stage.update();
+              if (game.getState() == ENDGAME_STATE) {
+                restart(); pendingStart = false;
+              }
+            }
             if (pendingStart) {restart(); pendingStart = false;}
-            if (showingMsg != null) {showingMsg.hide(); stage.removeChild(showingMsg); showingMsg = null; game.unpause();}
         }		  
   		  return false;
   		}
@@ -425,9 +463,6 @@
           return false;
         case 13:
           typingField.text = "";
-          if (canvas.onclick == handleClick) {
-            handleClick();
-          }
           return false;
       }
       if (!e.altKey && !e.metaKey){
@@ -447,6 +482,14 @@
       }
     }
 	}
+
+  function freezeCurrRock(){
+    currRock.freeze(preload2.getResult("rock2"));
+    createjs.Sound.play("hit", createjs.Sound.INTERRUPT_ANY);
+    game.logAction(currRock.question, 0);
+    comboField.text = game.getComboString();
+    currRock = null;    
+  }
 
 	function handleKeyUp(e) {
 		//cross browser issues exist
