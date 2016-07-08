@@ -349,8 +349,9 @@
             // Level up
             createjs.Sound.play("levelup", createjs.Sound.INTERRUPT_ANY);
             for (rock in rockBelt){
-              stage.removeChild(rockBelt[rock]);
+              gamePanel.removeChild(rockBelt[rock]);
             }            
+            rockBelt = [];
 
             if (game.getLevel() == MAX_LEVEL) {
               game.changeState(ENDINGGAME_STATE);
