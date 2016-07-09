@@ -85,7 +85,7 @@
 		stage.width = canvas.width;
 		stage.height = canvas.height;
 		
-    createjs.Ticker.setFPS(60);  //TODO: Change it to 60 for production
+    createjs.Ticker.setFPS(60);
     
     instructionTitle = new createjs.Text("CantoRocks", "bold 36px Pixel", "#FFFFCC");
     instructionTitle.textAlign = "left";
@@ -96,10 +96,10 @@
 		instructionField = new createjs.Text("", "20px Pixel", "#FFFFFF");
     instructionField.textAlign = "left";
     instructionField.textBaseline = "top";
-    instructionField.lineWidth = 600;
+    instructionField.lineWidth = 700;
     instructionField.x = 30;
     instructionField.y = 60;		
-    instructionField.text = "Jyutping giant is dropping rocks to the Earth! You need 512 points to save the planet. There is one weak spot. When they attack, you will hear a word. Type the word in Jyutping and you can destroy the falling rock.\n\nThis monster is bad at music, you can skip the spacebar and tone numbers.";
+    instructionField.text = "Jyutping giant is dropping rocks to the city! You need 512 points to save our home. There is one weak spot. When they attack, you will hear a word. Type the word in Jyutping and you can destroy the falling rock.\n\nThis monster is bad at music, you can skip the spacebar and tone numbers.";
 		
 		messageField = new createjs.Text("Loading", "bold 24px Pixel", "#FFCCFF");
 		messageField.maxWidth = 600;
@@ -134,7 +134,11 @@
       {id: "rock1", src: "brownrock.png"},
       {id: "rock2", src: "greyrock.png"},
       {id: "lpbg", src: "leftpanel.png"},
-      {id: "sun", src: "sun.png"}
+      {id: "sun", src: "sun.png"},
+      {id: "bg0", src: "bg0.png"},
+      {id: "bg1", src: "bg1.png"},
+      {id: "bg2", src: "bg2.png"},
+      {id: "cloud", src:"cloud.png"}      
     ];    
 
     //createjs.Sound.alternateExtensions = ["mp3"];
@@ -167,15 +171,8 @@
     
     var lp = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("lpbg")).drawRect(0,0,260,480));
     lp.name = "leftpanelbg";
-    /*
-    lp.x = 0;
-    lp.y = 0;
-    lp.scaleX = 260 / 64;
-    lp.scaleY = 480 / 64;
-    */
-    var bg = new createjs.Shape(new createjs.Graphics().beginFill("#87ceeb").drawRect (0,0,540,480));
-    bg.x = 260;
-    bg.y = 0;
+
+    var bg = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("bg0")).drawRect (260,0,540,480));
     bg.name = "bg";
 
     backdrop = new createjs.Container();
@@ -362,17 +359,18 @@
             showingMsg.show();
             stage.addChild(showingMsg);
             game.pause();
-            // TODO: Make scene change
+            // TODO: Make scene change for level up
           }
           var afterScoreAdj = Math.floor(game.getScore() * 0.05);
           if (beforeScoreAdj < afterScoreAdj){
             //TODO: Add bonus items to the screen based on score  e.g. one item for every 20 marks (?) - 25 items needed.
             var bg_item = new createjs.Bitmap(preload2.getResult("bg"+afterScoreAdj));
+            bg_item.x = 260;
             backdrop.addChild(bg_item);
             
             switch (afterScoreAdj){
               //set up special items, like rotating sun, etc.
-              case 1:
+              case 2:
                 var bg_item = new createjs.Bitmap(preload2.getResult("sun"));
                 bg_item.x = 730;
                 bg_item.y = 50;
@@ -386,6 +384,26 @@
                   this.rotation += 0.5; 
                 };
                 backdrop.moveables.push(bg_item);
+                break;
+              case 1:
+                var bg_item1 = new createjs.Bitmap(preload2.getResult("cloud"));
+                bg_item1.x = 300;
+                bg_item1.y = 100;
+                bg_item1.name = "cloud1";
+                backdrop.addChild(bg_item1);
+                bg_item1.tick = function(event, game){
+                  this.x = (this.x - 260 + 0.1) % 540 + 260; 
+                };
+                var bg_item2 = new createjs.Bitmap(preload2.getResult("cloud"));
+                bg_item2.x = 600;
+                bg_item2.y = 200;
+                bg_item2.name = "cloud2";
+                backdrop.addChild(bg_item2);                
+                bg_item2.tick = function(event, game){
+                  this.x = (this.x - 260 + 0.2) % 540 + 260; 
+                };                                
+                backdrop.moveables.push(bg_item1);
+                backdrop.moveables.push(bg_item2);
                 break;
             }
           }
@@ -409,13 +427,8 @@
 
         if (game.getLevel() < MAX_LEVEL) {
           createjs.Sound.play("dead", createjs.Sound.INTERRUPT_ANY); 
-          //var g = new createjs.Graphics();
-          //g.beginFill("rgba(0, 0, 0, 0.8)").drawRect(260,0,canvas.width-260,canvas.height);
-          //stage.addChild(new createjs.Shape(g));
-          //messageField.text = "You're dead. Hit enter to play again";       
-          //stage.addChild(messageField);
           showingMsg = new MsgBox();
-          showingMsg.init("Game Over","The monster has destroyed the Earth!!!\n\nPress Enter to switch on the Time Machine ...");
+          showingMsg.init("Game Over","The monster has destroyed the City!!!\n\nPress Enter to switch on the Time Machine ...");
           showingMsg.show();
           stage.addChild(showingMsg);
           game.pause();         
