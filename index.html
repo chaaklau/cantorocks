@@ -38,7 +38,6 @@
   document.getElementById("dummytextbox").focus();
   var manifest;           // used to register sounds for preloading
   var rockimages;         // rock images for preloading
-  
   var preload;
 
   var rockBelt;     //space rock array
@@ -60,6 +59,8 @@
   var qTextField;
   var typingField;    //user input
   var debugField;
+  var comboField;
+  var maxComboField;
 
   var loadingInterval = 0;
   var showingMsg = null;
@@ -137,11 +138,21 @@
       {id: "sun", src: "sun.png"},
       {id: "bg0", src: "bg0.png"},
       {id: "bg1", src: "bg1.png"},
-      {id: "bg2", src: "bg2.png"},
+      {id: "bg12", src: "bg12.png"},
+      {id: "bg14", src: "bg14.png"},            
+      {id: "bg16", src: "bg16.png"},
+      {id: "bg18", src: "bg18.png"},            
+      {id: "bg20", src: "bg20.png"},
+      {id: "bg24", src: "bg24.png"},
+      {id: "bg4", src: "bg4.png"},            
+      {id: "bg6", src: "bg6.png"},
+      {id: "bg9", src: "bg9.png"},            
+      {id: "plane", src:"plane.png"},
+      {id: "junk", src:"junk.png"},      
       {id: "cloud", src:"cloud.png"},
       {id: "duck", src:"duck.png"},
       {id: "dragon", src:"dragon.png"},
-      {id: "firework", src:"firework.png"}                        
+      {id: "fireworks", src:"fireworks.png"}                        
     ];    
 
     //createjs.Sound.alternateExtensions = ["mp3"];
@@ -171,21 +182,11 @@
     stage.update();   //update the stage to show text
 
     //Set up back-drop
-    
-    var lp = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("lpbg")).drawRect(0,0,260,480));
-    lp.name = "leftpanelbg";
-
-    var bg = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("bg0")).drawRect (260,0,540,480));
-    bg.name = "bg";
-
     backdrop = new createjs.Container();
     backdrop.x = 0;
     backdrop.y = 0;
     backdrop.width = canvas.width;
     backdrop.height = canvas.height;
-    backdrop.addChild(lp);
-    backdrop.addChild(bg);
-    backdrop.moveables = [];   
 
 		watchRestart();
 	}
@@ -200,12 +201,13 @@
 	  // indicate the player is now on screen
     createjs.Sound.play("begin");
 		stage.removeAllChildren();
-    // delete all moveable items from backdrop
-    for (var x in backdrop.moveables){
-      backdrop.removeChild(backdrop.moveables[x]);
-    }
-    backdrop.moveables = [];
 
+    // delete all moveable items from backdrop
+    backdrop.removeAllChildren();
+    backdrop.moveables = [];
+    var bg = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("bg0")).drawRect (260,0,540,480));
+    bg.name = "bg";
+    backdrop.addChild(bg);
 
     stage.addChild(backdrop);
     		
@@ -226,24 +228,32 @@
     scoreField.textAlign = "right";
     scoreField.x = 220;
     scoreField.y = 100;
-    scoreField.maxWidth = 260;    
+    scoreField.maxWidth = 240;    
 
     comboField = new createjs.Text("", "20px Pixel", "#802222");
     comboField.textAlign = "center";
     comboField.textBaseline = "top";
     comboField.x = 130;
     comboField.y = 170;
-    comboField.maxWidth = 260;
+    comboField.maxWidth = 240;
+    
+    maxComboField = new createjs.Text("", "15px Pixel", "#804444");
+    maxComboField.textAlign = "center";
+    maxComboField.textBaseline = "top";
+    maxComboField.x = 130;
+    maxComboField.y = 200;
+    maxComboField.maxWidth = 240;
+    
 
     qTextField = new createjs.Text("", "bold 40px Pixel", "#483C32");
-    qTextField.maxWidth = 260;
+    qTextField.maxWidth = 240;
     qTextField.textAlign = "center";
     qTextField.textBaseline = "middle";
     qTextField.x = 100;
     qTextField.y = 160;        
 
     qEnglishField = new createjs.Text("", "bold 15px Pixel", "#832A0D");
-    qEnglishField.maxWidth = 200;
+    qEnglishField.maxWidth = 190;
     qEnglishField.textAlign = "center";
     qEnglishField.textBaseline = "middle";
     qEnglishField.x = 100;
@@ -255,10 +265,8 @@
     qPanel.width = 200;
     qPanel.height = 250;
     
-    stage.addChild(qPanel);
     qPanel.addChild(qEnglishField);
     qPanel.addChild(qTextField);
-
     
     var g = new createjs.Graphics();
     g.setStrokeStyle(3);
@@ -266,7 +274,6 @@
     g.beginFill("white");
     g.drawRoundRect (40,380,180,30,8);
     typingBox = new createjs.Shape(g);
-    stage.addChild(typingBox);
 
     typingField = new createjs.Text("", "bold 18px Courier", "#000000");
     typingField.maxWidth = 260;
@@ -274,10 +281,17 @@
     typingField.textBaseline = "middle";
     typingField.x = 60;
     typingField.y = 394;    
-    
+
+    var lp = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("lpbg")).drawRect(0,0,260,480));
+    lp.name = "leftpanelbg";
+
+    stage.addChild(lp);
+    stage.addChild(qPanel);
+    stage.addChild(typingBox);    
     stage.addChild(typingField);		
 		stage.addChild(scoreField);
 		stage.addChild(comboField);
+    stage.addChild(maxComboField);		
     stage.addChild(levelField);		
     stage.addChild(debugField);		
     stage.update();
@@ -291,7 +305,8 @@
 		game = new GameState();
     //reset rockBelt
     rockBelt = [];
-	}
+  }
+
 
 	function tick(event) {
     for (x in backdrop.moveables){
@@ -344,6 +359,7 @@
           currRock = null;
           scoreField.text = game.getScore().toString();
           comboField.text = game.getComboString();
+          maxComboField.text = game.getMaxComboString();
           levelField.text = "Lv:" + game.getLevel().toString();
           if (beforeLevel < game.getLevel()) {
             // Level up
@@ -373,7 +389,86 @@
             
             switch (afterScoreAdj){
               //set up special items, like rotating sun, etc.
-              case 2:
+              case 22:
+                var bg_item = new createjs.Bitmap(preload2.getResult("duck"));
+                bg_item.x = 700;
+                bg_item.y = 400;
+                bg_item.name = "duck";
+                bg_item.regX = bg_item.getBounds().width / 2;
+                bg_item.regY = bg_item.getBounds().height / 2;
+                bg_item.rotation = 0;
+                bg_item.rotDirection = 1;
+                backdrop.addChild(bg_item);
+                bg_item.tick = function(event, game){
+                  if (Math.abs(this.rotation) > 10) {
+                    this.rotDirection *= -1;
+                  }
+                  this.rotation += 0.1 * this.rotDirection;
+                };
+                backdrop.moveables.push(bg_item);
+                break;
+              case 25:
+                var bg_item = new createjs.Bitmap(preload2.getResult("dragon"));
+                bg_item.x = 260;
+                bg_item.y = 40;
+                bg_item.name = "dragon";
+                bg_item.regX = bg_item.getBounds().width / 2;
+                bg_item.regY = bg_item.getBounds().height / 2;
+                bg_item.moveDirection = 1;
+                bg_item.moveCount = 0;
+                backdrop.addChild(bg_item);
+                bg_item.tick = function(event, game){
+                  this.moveCount += this.moveDirection;
+                  if (Math.abs(++this.moveCount) > 50) { this.moveDirection *= -1;}
+                  this.x = (this.x + 0.15) % 1000;
+                  this.y = this.y + this.moveDirection * 0.5; 
+                };
+                backdrop.moveables.push(bg_item);
+                break;
+              case 1: //Change to 15
+                var bg_item = new createjs.Bitmap(preload2.getResult("plane"));
+                bg_item.x = 260;
+                bg_item.y = 90;
+                bg_item.name = "plane";
+                bg_item.regX = bg_item.getBounds().width / 2;
+                bg_item.regY = bg_item.getBounds().height / 2;
+                bg_item.rotation = 0;
+                bg_item.rotDirection = 1;
+                bg_item.moveDirection = 1;
+                bg_item.moveCount = 0;
+                backdrop.addChild(bg_item);
+                bg_item.tick = function(event, game){
+                  if (Math.abs(this.rotation) > 2) {
+                    this.rotDirection *= -1;
+                  }
+                  this.rotation += 0.1 * this.rotDirection;                  
+                  this.moveCount += this.moveDirection;
+                  if (Math.abs(++this.moveCount) > 20) { this.moveDirection *= -1;}
+                  this.x = (this.x + 0.3) % 3000;
+                  this.y = this.y + this.moveDirection * 0.3; 
+                };
+                backdrop.moveables.push(bg_item);
+                break;
+              case 17:
+                var bg_item = new createjs.Bitmap(preload2.getResult("junk"));
+                bg_item.x = 260;
+                bg_item.y = 400;
+                bg_item.name = "junk";
+                bg_item.regX = bg_item.getBounds().width / 2;
+                bg_item.regY = bg_item.getBounds().height / 2;
+                bg_item.rotation = 0;
+                bg_item.rotDirection = 1;
+                backdrop.addChild(bg_item);
+                bg_item.tick = function(event, game){
+                  if (Math.abs(this.rotation) > 3) {
+                    this.rotDirection *= -1;
+                  }
+                  this.rotation += 0.1 * this.rotDirection;                  
+                  this.x = (this.x - 100 + 0.1) % 800 + 100; 
+                };
+                backdrop.moveables.push(bg_item);
+                break;
+              case 3:
                 var bg_item = new createjs.Bitmap(preload2.getResult("sun"));
                 bg_item.x = 730;
                 bg_item.y = 50;
@@ -388,14 +483,14 @@
                 };
                 backdrop.moveables.push(bg_item);
                 break;
-              case 1:
+              case 2:
                 var bg_item1 = new createjs.Bitmap(preload2.getResult("cloud"));
                 bg_item1.x = 300;
                 bg_item1.y = 100;
                 bg_item1.name = "cloud1";
                 backdrop.addChild(bg_item1);
                 bg_item1.tick = function(event, game){
-                  this.x = (this.x - 260 + 0.1) % 540 + 260; 
+                  this.x = (this.x - 100 + 0.1) % 700 + 100; 
                 };
                 var bg_item2 = new createjs.Bitmap(preload2.getResult("cloud"));
                 bg_item2.x = 600;
@@ -403,7 +498,7 @@
                 bg_item2.name = "cloud2";
                 backdrop.addChild(bg_item2);                
                 bg_item2.tick = function(event, game){
-                  this.x = (this.x - 260 + 0.2) % 540 + 260; 
+                  this.x = (this.x - 100 + 0.2) % 650 + 100; 
                 };                                
                 backdrop.moveables.push(bg_item1);
                 backdrop.moveables.push(bg_item2);
@@ -506,6 +601,7 @@
     createjs.Sound.play("hit", createjs.Sound.INTERRUPT_ANY);
     game.logAction(currRock.question, 0);
     comboField.text = game.getComboString();
+    maxComboField.text = game.getMaxComboString();
     currRock = null;    
   }
 

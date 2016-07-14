@@ -9,6 +9,7 @@
     var pause_state = false;
     var history = [];
     var combo = 0;
+    var maxCombo = 0;
 
     //Privileged methods
     
@@ -45,6 +46,9 @@
   	    combo = 0;
   	  } else {
   	    combo++;
+  	    if (maxCombo < combo) {
+  	      maxCombo = combo;
+  	    }
   	  }
   	};
 
@@ -56,7 +60,14 @@
       if (!combo) return "";
       return combo.toString() + " Combo" + (combo>1?"s":"");
     };
-	
+    this.getMaxCombo = function(){
+      return maxCombo;
+    };
+    this.getMaxComboString = function() {
+      if (!maxCombo) return "";
+      return "Max: " + maxCombo.toString();
+    };	
+
     this.getScore = function(){
   	  var sum = 0;
   	  for (x in history) {
