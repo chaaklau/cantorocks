@@ -1,10 +1,17 @@
+var MODE_REGULAR = 0;
+var MODE_FULL = 1;
+var MODE_INITIAL = 2;
+var MODE_MEDIAL = 2;
+var MODE_FINAL = 3;
+var MODE_TONE = 4;
 
-  var INIT_STATE = 0;
-  var GAME_STATE = 1;
-  var ENDINGGAME_STATE = 2;
-  var ENDGAME_STATE = 3;
+var INIT_STATE = 0;
+var GAME_STATE = 1;
+var ENDINGGAME_STATE = 2;
+var ENDGAME_STATE = 3;
   
-  function GameState(){
+  function GameState(_mode){
+    var mode = _mode;
     var state = INIT_STATE;
     var pause_state = false;
     var history = [];

@@ -275,7 +275,7 @@
     g.drawRoundRect (40,380,180,30,8);
     typingBox = new createjs.Shape(g);
 
-    typingField = new createjs.Text("", "bold 17px Courier", "#111111");
+    typingField = new createjs.Text("", "bold 16px Courier", "#222222");
     typingField.maxWidth = 160;
     typingField.textAlign = "left";
     typingField.textBaseline = "middle";
@@ -302,7 +302,7 @@
 		}
 		
 		//Game Logic below
-		game = new GameState();
+		game = new GameState(MODE_REGULAR);
     //reset rockBelt
     rockBelt = [];
   }
@@ -444,7 +444,7 @@
                 };
                 backdrop.moveables.push(bg_item);
                 break;
-              case 1: //17
+              case 17:
                 var bg_item = new createjs.Bitmap(preload2.getResult("junk"));
                 bg_item.x = 260;
                 bg_item.y = 400;

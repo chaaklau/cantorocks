@@ -7,8 +7,8 @@
     this.launched = false;
     this.stuck = false;
     this.question = null;
-    this.x = Math.random() * (540 - 80);
-    this.y = -50;  
+    this.x = Math.random() * (540 - 101);
+    this.y = -80;  
   }
 
   var p = createjs.extend(Rock, createjs.Container);
@@ -28,8 +28,8 @@
     this.rock.x = 0;
     this.rock.y = 0;
 
-    this.label = new createjs.Text(q.text, "15px Pixel", "#FFFFCC");
-    this.label.maxWidth = 80;
+    this.label = new createjs.Text(q.text, "20px Arial", "#FFFFFF");
+    this.label.maxWidth = 90;
     this.label.textAlign = "center";
     this.label.textBaseline = "middle";
     this.label.x = this.rock.getBounds().width / 2;
@@ -78,7 +78,3 @@
   
   window.Rock = createjs.promote(Rock, "Container");
 }(window));
-  
-  
-
-
