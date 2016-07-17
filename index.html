@@ -275,11 +275,11 @@
     g.drawRoundRect (40,380,180,30,8);
     typingBox = new createjs.Shape(g);
 
-    typingField = new createjs.Text("", "bold 18px Courier", "#000000");
-    typingField.maxWidth = 260;
+    typingField = new createjs.Text("", "bold 17px Courier", "#111111");
+    typingField.maxWidth = 160;
     typingField.textAlign = "left";
     typingField.textBaseline = "middle";
-    typingField.x = 60;
+    typingField.x = 50;
     typingField.y = 394;    
 
     var lp = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("lpbg")).drawRect(0,0,260,480));
@@ -425,7 +425,7 @@
                 };
                 backdrop.moveables.push(bg_item);
                 break;
-              case 1: //Change to 15
+              case 15:
                 var bg_item = new createjs.Bitmap(preload2.getResult("plane"));
                 bg_item.x = 260;
                 bg_item.y = 90;
@@ -433,29 +433,26 @@
                 bg_item.regX = bg_item.getBounds().width / 2;
                 bg_item.regY = bg_item.getBounds().height / 2;
                 bg_item.rotation = 0;
-                bg_item.rotDirection = 1;
                 bg_item.moveDirection = 1;
                 bg_item.moveCount = 0;
                 backdrop.addChild(bg_item);
                 bg_item.tick = function(event, game){
-                  if (Math.abs(this.rotation) > 2) {
-                    this.rotDirection *= -1;
-                  }
-                  this.rotation += 0.1 * this.rotDirection;                  
                   this.moveCount += this.moveDirection;
                   if (Math.abs(++this.moveCount) > 20) { this.moveDirection *= -1;}
-                  this.x = (this.x + 0.3) % 3000;
+                  this.x = (this.x + 0.5) % 1000;
                   this.y = this.y + this.moveDirection * 0.3; 
                 };
                 backdrop.moveables.push(bg_item);
                 break;
-              case 17:
+              case 1: //17
                 var bg_item = new createjs.Bitmap(preload2.getResult("junk"));
                 bg_item.x = 260;
                 bg_item.y = 400;
                 bg_item.name = "junk";
                 bg_item.regX = bg_item.getBounds().width / 2;
                 bg_item.regY = bg_item.getBounds().height / 2;
+                bg_item.scaleX = 1.5;
+                bg_item.scaleY = 1.5;
                 bg_item.rotation = 0;
                 bg_item.rotDirection = 1;
                 backdrop.addChild(bg_item);
