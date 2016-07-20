@@ -65,6 +65,8 @@
   var loadingInterval = 0;
   var showingMsg = null;
   
+  var screenMode = 0;
+  
   var freeze_counter = 0;
   var MAX_FREEZE = 10;
 
@@ -192,7 +194,6 @@
 	}
 
 	function watchRestart() {
-		//watch for clicks
 		pendingStart = true;
 	}
 
@@ -302,7 +303,7 @@
 		}
 		
 		//Game Logic below
-		game = new GameState(MODE_REGULAR);
+		game = new GameState(screenMode);
     //reset rockBelt
     rockBelt = [];
   }
@@ -561,6 +562,13 @@
               }
             }
             if (pendingStart) {restart(); pendingStart = false;}
+            break;
+          case 37:
+            screenMode = (screenMode+5) % 6;
+            break;
+          case 39: 
+            screenMode = (screenMode+1) % 6;
+            break;
         }		  
   		  return false;
   		}

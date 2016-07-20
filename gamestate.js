@@ -1,9 +1,9 @@
 var MODE_REGULAR = 0;
 var MODE_FULL = 1;
 var MODE_INITIAL = 2;
-var MODE_MEDIAL = 2;
-var MODE_FINAL = 3;
-var MODE_TONE = 4;
+var MODE_MEDIAL = 3;
+var MODE_FINAL = 4;
+var MODE_TONE = 5;
 
 var INIT_STATE = 0;
 var GAME_STATE = 1;
