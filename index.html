@@ -140,6 +140,8 @@
       {id: "lpbg", src: "leftpanel.png"},
       {id: "sun", src: "sun.png"},
       {id: "bg0", src: "bg0.png"},
+      {id: "bg0_full", src: "bg0_full.png"},
+      {id: "bg0_practice", src: "bg0_practice.png"},
       {id: "bg1", src: "bg1.png"},
       {id: "bg12", src: "bg12.png"},
       {id: "bg14", src: "bg14.png"},            
@@ -204,11 +206,29 @@
     createjs.Sound.play("begin");
 		stage.removeAllChildren();
 
+    //Game Logic below
+    game = new GameState(screenMode);
+    //reset rockBelt
+    rockBelt = [];
+
     // delete all moveable items from backdrop
     backdrop.removeAllChildren();
     backdrop.moveables = [];
-    var bg = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("bg0")).drawRect (260,0,540,480));
+    var bg;
+    switch (game.getMode()){
+      case MODE_FULL:
+        bg = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("bg0_full")).drawRect (0,0,540,480));
+        break;
+      case MODE_REGULAR:
+        bg = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("bg0")).drawRect (0,0,540,480));
+        break;              
+      default:
+        bg = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("bg0_practice")).drawRect (0,0,540,480));
+        break;
+    }
+     
     bg.name = "bg";
+    bg.x = 260;
     backdrop.addChild(bg);
 
     stage.addChild(backdrop);
@@ -225,6 +245,7 @@
     modeField.x = 20;
     modeField.y = 20;
     modeField.maxWidth = 160;
+    modeField.text = game.getModeText();
 
     levelField = new createjs.Text("-----", "bold 20px Pixel", "#FFFFCC");
     levelField.textAlign = "right";
@@ -309,12 +330,6 @@
 		if (!createjs.Ticker.hasEventListener("tick")) {
 			createjs.Ticker.addEventListener("tick", tick);
 		}
-		
-		//Game Logic below
-		game = new GameState(screenMode);
-		modeField.text = game.getModeText();
-    //reset rockBelt
-    rockBelt = [];
   }
 
 
@@ -331,7 +346,7 @@
         if (!currRock) {
           typingField.text = "";
           currRock = new Rock();
-          currRock.init(preload2.getResult("rock1"), new Question(Math.floor(Math.random()*BANK.length)));
+          currRock.init(preload2.getResult("rock1"), new Question(game.getMode(), Math.floor(Math.random()*BANK.length)));
           rockBelt.push(currRock);
           gamePanel.addChild(currRock);
           qEnglishField.text = currRock.question.english;
@@ -573,10 +588,10 @@
             if (pendingStart) {restart(); pendingStart = false;}
             break;
           case 37:
-            screenMode = (screenMode+5) % 6;
+            screenMode = (screenMode+4) % 5;
             break;
           case 39: 
-            screenMode = (screenMode+1) % 6;
+            screenMode = (screenMode+1) % 5;
             break;
         }		  
   		  return false;
@@ -593,11 +608,11 @@
           return false;
       }
       if (!e.altKey && !e.metaKey){
-          if (x == 32 || x >= 65 && x <= 90){
+          if (x == 32 || x >= 65 && x <= 90 || x >= 48 && x <= 54){
           typingField.text = typingField.text + String.fromCharCode(x).toLowerCase();
           
           if (currRock) {
-            if (currRock.check(typingField.text)) {           
+            if (currRock.check(game.getMode(), typingField.text)) {           
               var index = rockBelt.indexOf(currRock);
               rockBelt.splice(index,1);
               currRock.active = false;

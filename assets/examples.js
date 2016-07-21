@@ -11,7 +11,8 @@
 			document.body.className += " embedded";
 		}
 	}
-	
+
+/*	
 	var o = window.examples = {};
 	o.showDistractor = function(id) {
 		var div = id ? document.getElementById(id) : document.querySelector("div canvas").parentNode;
@@ -22,4 +23,10 @@
 		var div = document.querySelector(".loading");
 		div.className = div.className.replace(/\bloading\b/);
 	};
+*/	
+  String.prototype.replaceAll = function(search, replacement) {
+      var target = this;
+      return target.replace(new RegExp(search, 'g'), replacement);
+  };
+	
 })();

@@ -46,13 +46,8 @@
     this.active = true;
   };
 
-  String.prototype.replaceAll = function(search, replacement) {
-      var target = this;
-      return target.replace(new RegExp(search, 'g'), replacement);
-  };
-
-  p.check = function(answer){
-    return answer.toLowerCase().replaceAll(" ","") == this.question.lshk.toLowerCase().replaceAll(" ","");
+  p.check = function(mode, answer){
+    return this.question.check(mode, answer);
   };
   
   p.tick = function(event, game){
