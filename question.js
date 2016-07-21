@@ -169,7 +169,7 @@ var BANK = [
 {"text":"人", "lshk":"jan", "full":"jan4", "initial":"j", "rhyme":"an", "tone":"4", "sound":"cfe0168.mp3" , "english":"people; person"},
 //{"text":"英文", "lshk":"Jing Man", "full":"Jing1 Man4", "initial":"j m", "rhyme":"ing an", "tone":"1 4", "sound":"cfe0169.mp3" , "english":"English language"},
 {"text":"影相", "lshk":"jing soeng", "full":"jing2 soeng2", "initial":"j s", "rhyme":"ing oeng", "tone":"2 2", "sound":"cfe0170.mp3" , "english":"take photographs"},
-{"text":"旅行", "lshk":"leoi hang", "full":"leoi5 hang4", "initial":"l h", "rhyme":"eoi ang", "tone":"5 4", "sound":"cfe0171.mp3" , "english":"travel (N) traveling"},
+{"text":"旅行", "lshk":"leoi hang", "full":"leoi5 hang4", "initial":"l h", "rhyme":"eoi ang", "tone":"5 4", "sound":"cfe0171.mp3" , "english":"travel; traveling"},
 {"text":"老闆", "lshk":"lou baan", "full":"lou5 baan2", "initial":"l b", "rhyme":"ou aan", "tone":"5 2", "sound":"cfe0172.mp3" , "english":"boss"},
 {"text":"乜嘢科", "lshk":"mat je fo", "full":"mat1 je5 fo1", "initial":"m j f", "rhyme":"at e o", "tone":"1 5 1", "sound":"cfe0173.mp3" , "english":"what subject?"},
 {"text":"乜嘢人", "lshk":"mat je jan", "full":"mat1 je5 jan4", "initial":"m j j", "rhyme":"at e an", "tone":"1 5 4", "sound":"cfe0174.mp3" , "english":"what people?"},
@@ -580,6 +580,9 @@ function Question(mode, id){
   };
 
   this.check = function(mode, attempt) {
+    if (mode == MODE_INITIAL || mode == MODE_FINAL) {
+      return this.lshk.toLowerCase() == attempt;  
+    }
     return this.lshk.replaceAll(" ","").toLowerCase() == attempt.replaceAll(" ","");
   };  
 }
