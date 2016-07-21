@@ -408,7 +408,7 @@
               break; 
             }              
             showingMsg = new MsgBox();
-            showingMsg.init("Level up!!!", "Congratulations!\n\nYou've reached\nLevel" + game.getLevel() + "!\n\nPress Enter \nto Continue");
+            showingMsg.init("Level up!!!", "Congratulations!\n\nYou've reached\nLevel " + game.getLevel() + "!\n\nPress Enter \nto Continue");
             showingMsg.show();
             stage.addChild(showingMsg);
             game.pause();
@@ -416,7 +416,6 @@
           }
           var afterScoreAdj = Math.floor(game.getScore() * 0.05);
           if (beforeScoreAdj < afterScoreAdj  &&  !game.isPractice()){
-            //TODO: Add bonus items to the screen based on score  e.g. one item for every 20 marks (?) - 25 items needed.
             var bg_item = new createjs.Bitmap(preload2.getResult("bg"+afterScoreAdj));
             bg_item.x = 260;
             backdrop.addChild(bg_item);
@@ -582,8 +581,6 @@
         stage.update(event);    
 	    break;
 	    case ENDGAME_STATE:
-        loadHomeScreen();
-        doneLoading();  	     
 	    break;
 	  }
 	}
@@ -602,10 +599,11 @@
             if (showingMsg != null) {
               showingMsg.hide(); stage.removeChild(showingMsg); showingMsg = null; game.unpause(); stage.update();
               if (game.getState() == ENDGAME_STATE) {
-                restart(); pendingStart = false;
+                        loadHomeScreen(); doneLoading();                          
               }
+            } else {
+              if (pendingStart) {restart(); pendingStart = false;}              
             }
-            if (pendingStart) {restart(); pendingStart = false;}
             break;
           case 37:
             screenMode = (screenMode+4) % 5;

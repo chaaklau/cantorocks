@@ -470,7 +470,7 @@ var BANK = [
 {"text":"高", "lshk":"gou", "full":"gou1", "initial":"g", "rhyme":"ou", "tone":"1", "sound":"cfe0468.mp3" , "english":"tall; high"},
 {"text":"乖", "lshk":"gwaai", "full":"gwaai1", "initial":"gw", "rhyme":"aai", "tone":"1", "sound":"cfe0469.mp3" , "english":"good; obedient"},
 {"text":"喺度食", "lshk":"hai dou sik", "full":"hai2 dou6 sik6", "initial":"h d s", "rhyme":"ai ou ik", "tone":"2 6 6", "sound":"cfe0470.mp3" , "english":"eat here"},
-{"text":"冚唪唥", "lshk":"ham baang laang", "full":"ham4 baang6 laang6", "initial":"h b l", "rhyme":"am aang aang", "tone":"4 6 6", "sound":"cfe0471.mp3" , "english":"all; whole"},
+{"text":"冚唪唥", "lshk":"ham baang laang", "full":"ham6 baang6 laang6", "initial":"h b l", "rhyme":"am aang aang", "tone":"4 6 6", "sound":"cfe0471.mp3" , "english":"all; whole"},
 {"text":"後生", "lshk":"hau saang", "full":"hau6 saang1", "initial":"h s", "rhyme":"au aang", "tone":"6 1", "sound":"cfe0472.mp3" , "english":"young"},
 {"text":"汽水", "lshk":"hei seoi", "full":"hei3 seoi2", "initial":"h s", "rhyme":"ei eoi", "tone":"3 2", "sound":"cfe0473.mp3" , "english":"soft drinks"},
 {"text":"兄弟", "lshk":"hing dai", "full":"hing1 dai6", "initial":"h d", "rhyme":"ing ai", "tone":"1 6", "sound":"cfe0474.mp3" , "english":"brothers"},
