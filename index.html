@@ -46,7 +46,7 @@
   var canvas;     //Main canvas
   var stage;      //Main display stage
   
-  var pendingStart = false;
+  var pendingStart;
   
   var gamePanel;      //a panel that contains every game object
   var qPanel;         //a panel that holds currRock question
@@ -77,6 +77,46 @@
   var game;
 
 
+  function initHomeScreen(){
+    instructionTitle = new createjs.Text("CantoRocks", "bold 36px Pixel", "#FFFFCC");
+    instructionTitle.textAlign = "left";
+    instructionTitle.textBaseline = "top";
+    instructionTitle.x = 30;
+    instructionTitle.y = 20;
+    
+    instructionField = new createjs.Text("", "20px Pixel", "#FFFFFF");
+    instructionField.textAlign = "left";
+    instructionField.textBaseline = "top";
+    instructionField.lineWidth = 700;
+    instructionField.x = 30;
+    instructionField.y = 60;    
+    instructionField.text = "Jyutping giant is dropping rocks to the city! You need 512 points to save our home. There is one weak spot. When they attack, you will hear a word. Type the word in Jyutping and you can destroy the falling rock.\n\nThis monster is bad at music, you can skip the spacebar and tone numbers.";
+    
+    messageField = new createjs.Text("Loading", "bold 24px Pixel", "#FFCCFF");
+    messageField.maxWidth = 600;
+    messageField.textAlign = "right";
+    messageField.textBaseline = "bottom";
+    messageField.x = canvas.width - 10;
+    messageField.y = canvas.height -10;
+    
+    debugField = new createjs.Text("", "bold 20px Arial", "#FF0000");
+    debugField.maxWidth = 240;
+    debugField.textAlign = "left";
+    debugField.textBaseline = "middle";
+    debugField.x = 10;
+    debugField.y = 100;
+  }
+
+
+  function loadHomeScreen(){
+    pendingStart = false;
+    stage.removeAllChildren();
+    stage.addChild(messageField);
+    stage.addChild(instructionTitle);
+    stage.addChild(instructionField);
+    stage.update();
+  }
+
 	function init() {
 		if (!createjs.Sound.initializeDefaultPlugins()) {
 			document.getElementById("error").style.display = "block";
@@ -91,39 +131,9 @@
 		
     createjs.Ticker.setFPS(60);
     
-    instructionTitle = new createjs.Text("CantoRocks", "bold 36px Pixel", "#FFFFCC");
-    instructionTitle.textAlign = "left";
-    instructionTitle.textBaseline = "top";
-    instructionTitle.x = 30;
-    instructionTitle.y = 20;
+    initHomeScreen();
+    loadHomeScreen();
     
-		instructionField = new createjs.Text("", "20px Pixel", "#FFFFFF");
-    instructionField.textAlign = "left";
-    instructionField.textBaseline = "top";
-    instructionField.lineWidth = 700;
-    instructionField.x = 30;
-    instructionField.y = 60;		
-    instructionField.text = "Jyutping giant is dropping rocks to the city! You need 512 points to save our home. There is one weak spot. When they attack, you will hear a word. Type the word in Jyutping and you can destroy the falling rock.\n\nThis monster is bad at music, you can skip the spacebar and tone numbers.";
-		
-		messageField = new createjs.Text("Loading", "bold 24px Pixel", "#FFCCFF");
-		messageField.maxWidth = 600;
-		messageField.textAlign = "right";
-		messageField.textBaseline = "bottom";
-		messageField.x = canvas.width - 10;
-		messageField.y = canvas.height -10;
-		
-    debugField = new createjs.Text("", "bold 20px Arial", "#FF0000");
-    debugField.maxWidth = 240;
-    debugField.textAlign = "left";
-    debugField.textBaseline = "middle";
-    debugField.x = 10;
-    debugField.y = 100;
-
-    stage.addChild(messageField);
-    stage.addChild(instructionTitle);
-    stage.addChild(instructionField);
-		stage.update();
-
 		// begin loading content
 		var assetsPath = "sounds/";
 		manifest = [
@@ -174,6 +184,13 @@
     preload3.addEventListener("complete", doneLoading); // add an event listener for when load is completed
     preload3.addEventListener("progress", updateLoading);
     preload3.loadManifest(words);
+    
+    //Set up back-drop
+    backdrop = new createjs.Container();
+    backdrop.x = 0;
+    backdrop.y = 0;
+    backdrop.width = canvas.width;
+    backdrop.height = canvas.height;
 	}
 
 	function updateLoading() {
@@ -183,16 +200,8 @@
 
 	function doneLoading(event) {
 		clearInterval(loadingInterval);
-		messageField.text = "Press Enter to continue...";
+		messageField.text = "Use <- or -> to select MODE. Press Enter to continue...";
     stage.update();   //update the stage to show text
-
-    //Set up back-drop
-    backdrop = new createjs.Container();
-    backdrop.x = 0;
-    backdrop.y = 0;
-    backdrop.width = canvas.width;
-    backdrop.height = canvas.height;
-
 		watchRestart();
 	}
 
@@ -240,18 +249,18 @@
 		gamePanel.height = canvas.height;
 		stage.addChild(gamePanel);   
 
-    modeField = new createjs.Text("", "bold 20px Pixel", "#CCFFFF");
+    modeField = new createjs.Text("", "bold 18px Pixel", "#CCFFFF");
     modeField.textAlign = "left";
     modeField.x = 20;
     modeField.y = 20;
-    modeField.maxWidth = 160;
+    modeField.maxWidth = 150;
     modeField.text = game.getModeText();
 
-    levelField = new createjs.Text("-----", "bold 20px Pixel", "#FFFFCC");
+    levelField = new createjs.Text("-----", "bold 18px Pixel", "#FFFFCC");
     levelField.textAlign = "right";
     levelField.x = 240;
     levelField.y = 20;
-    levelField.maxWidth = 60;
+    levelField.maxWidth = 70;
     
     scoreField = new createjs.Text("0", "bold 40px Pixel", "#FFFFFF");
     scoreField.textAlign = "right";
@@ -399,14 +408,14 @@
               break; 
             }              
             showingMsg = new MsgBox();
-            showingMsg.init("Level up!!!", "Congratulations!\nYou have reached Level " + game.getLevel() + "!\n\nPress Enter to Continue ...");
+            showingMsg.init("Level up!!!", "Congratulations!\n\nYou've reached\nLevel" + game.getLevel() + "!\n\nPress Enter \nto Continue");
             showingMsg.show();
             stage.addChild(showingMsg);
             game.pause();
             // TODO: Make scene change for level up
           }
           var afterScoreAdj = Math.floor(game.getScore() * 0.05);
-          if (beforeScoreAdj < afterScoreAdj){
+          if (beforeScoreAdj < afterScoreAdj  &&  !game.isPractice()){
             //TODO: Add bonus items to the screen based on score  e.g. one item for every 20 marks (?) - 25 items needed.
             var bg_item = new createjs.Bitmap(preload2.getResult("bg"+afterScoreAdj));
             bg_item.x = 260;
@@ -548,14 +557,24 @@
         if (!game.isMax()) {
           createjs.Sound.play("dead", createjs.Sound.INTERRUPT_ANY); 
           showingMsg = new MsgBox();
-          showingMsg.init("Game Over","The monster has destroyed the City!!!\n\nPress Enter to switch on the Time Machine ...");
+          if (game.isPractice()){
+            showingMsg.init("Try Again!","You should work\non your"+game.getModeText()+"!\n\nPress Enter\nto Return");
+          }
+          else {
+            showingMsg.init("Game Over","The monster\nhas destroyed\nthe City!!!\n\nClick on the rocks!\n\nPress Enter to \nswitch on the \nTime Machine");            
+          }
           showingMsg.show();
           stage.addChild(showingMsg);
           game.pause();         
         } else {
           createjs.Sound.play("levelup", createjs.Sound.INTERRUPT_ANY);              
           showingMsg = new MsgBox();
-          showingMsg.init("Congratuations","You've defeated the Monster!!!\n\nPress Enter to Continue ...");
+          if (game.isPractice()){
+            showingMsg.init("Congratuations","You've finished\n"+game.getModeText()+"!\n\nPress Enter\nto Return");
+          }
+          else {
+            showingMsg.init("Congratuations","You've defeated\nthe Monster!!!\nEnjoy the city view.\n\nPress Enter\nto Return");            
+          }
           showingMsg.show();
           stage.addChild(showingMsg);
           game.pause();          
@@ -563,7 +582,8 @@
         stage.update(event);    
 	    break;
 	    case ENDGAME_STATE:
-        watchRestart();  	     
+        loadHomeScreen();
+        doneLoading();  	     
 	    break;
 	  }
 	}
