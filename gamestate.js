@@ -90,6 +90,22 @@ var ENDGAME_STATE = 3;
       }
       return -1;
     };
+    
+    this.getMode = function(){
+      return mode;
+    };
+
+    this.getModeText = function(){
+      return MODE_NAMES[mode];
+    };
+
+    this.isMax = function(){
+      return this.getLevel() == MAX_LEVEL[mode];
+    };
+    
+    this.isPractice = function(){
+      return mode != MODE_REGULAR && mode != MODE_FULL;
+    };
   }
   
 

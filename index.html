@@ -61,6 +61,7 @@
   var debugField;
   var comboField;
   var maxComboField;
+  var modeField;
 
   var loadingInterval = 0;
   var showingMsg = null;
@@ -219,11 +220,17 @@
 		gamePanel.height = canvas.height;
 		stage.addChild(gamePanel);   
 
-    levelField = new createjs.Text("Lv 0", "bold 20px Pixel", "#FFFFCC");
-    levelField.textAlign = "left";
-    levelField.x = 20;
+    modeField = new createjs.Text("", "bold 20px Pixel", "#CCFFFF");
+    modeField.textAlign = "left";
+    modeField.x = 20;
+    modeField.y = 20;
+    modeField.maxWidth = 160;
+
+    levelField = new createjs.Text("-----", "bold 20px Pixel", "#FFFFCC");
+    levelField.textAlign = "right";
+    levelField.x = 240;
     levelField.y = 20;
-    levelField.maxWidth = 260;
+    levelField.maxWidth = 60;
     
     scoreField = new createjs.Text("0", "bold 40px Pixel", "#FFFFFF");
     scoreField.textAlign = "right";
@@ -293,7 +300,8 @@
 		stage.addChild(scoreField);
 		stage.addChild(comboField);
     stage.addChild(maxComboField);		
-    stage.addChild(levelField);		
+    stage.addChild(levelField);
+    stage.addChild(modeField);		
     stage.addChild(debugField);		
     stage.update();
 
@@ -304,6 +312,7 @@
 		
 		//Game Logic below
 		game = new GameState(screenMode);
+		modeField.text = game.getModeText();
     //reset rockBelt
     rockBelt = [];
   }
@@ -361,7 +370,7 @@
           scoreField.text = game.getScore().toString();
           comboField.text = game.getComboString();
           maxComboField.text = game.getMaxComboString();
-          levelField.text = "Lv:" + game.getLevel().toString();
+          levelField.text = (game.isPractice()? "----" : "Lv:" + game.getLevel().toString());
           if (beforeLevel < game.getLevel()) {
             // Level up
             createjs.Sound.play("levelup", createjs.Sound.INTERRUPT_ANY);
@@ -370,7 +379,7 @@
             }            
             rockBelt = [];
 
-            if (game.getLevel() == MAX_LEVEL) {
+            if (game.isMax()) {
               game.changeState(ENDINGGAME_STATE);
               break; 
             }              
@@ -521,7 +530,7 @@
         //Officially ending the game        
         game.changeState(ENDGAME_STATE);
 
-        if (game.getLevel() < MAX_LEVEL) {
+        if (!game.isMax()) {
           createjs.Sound.play("dead", createjs.Sound.INTERRUPT_ANY); 
           showingMsg = new MsgBox();
           showingMsg.init("Game Over","The monster has destroyed the City!!!\n\nPress Enter to switch on the Time Machine ...");

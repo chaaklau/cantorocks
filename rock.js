@@ -56,7 +56,7 @@
   };
   
   p.tick = function(event, game){
-    var velocity = getVelocity(game.getLevel()) / Math.pow(this.question.text.length, 0.5);
+    var velocity = getVelocity(game.getMode(), game.getLevel()) / Math.pow(this.question.text.length, 0.5);
     this.y += velocity; 
   };
   
