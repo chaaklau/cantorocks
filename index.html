@@ -27,7 +27,7 @@
 
 <div id="content">
   <input id="dummytextbox" type="text" style="height:1px; background:transparent; border:0px; width:800px;"/>  
-	<canvas id="gameCanvas" width="800" height="480" style="background:black;"></canvas>
+	<canvas id="gameCanvas" width="800" height="480" style="background:black;"> </canvas>
 </div>
 
 <div id="error">
@@ -62,6 +62,7 @@
   var comboField;
   var maxComboField;
   var modeField;
+  var modeDesc = [];
 
   var loadingInterval = 0;
   var showingMsg = null;
@@ -78,19 +79,19 @@
 
 
   function initHomeScreen(){
-    instructionTitle = new createjs.Text("CantoRocks", "bold 36px Pixel", "#FFFFCC");
+    instructionTitle = new createjs.Text("CantoRocks", "bold 34px Pixel", "#FFFFCC");
     instructionTitle.textAlign = "left";
     instructionTitle.textBaseline = "top";
     instructionTitle.x = 30;
-    instructionTitle.y = 20;
+    instructionTitle.y = 10;
     
-    instructionField = new createjs.Text("", "20px Pixel", "#FFFFFF");
+    instructionField = new createjs.Text("", "18px Pixel", "#FFFFFF");
     instructionField.textAlign = "left";
     instructionField.textBaseline = "top";
     instructionField.lineWidth = 700;
     instructionField.x = 30;
     instructionField.y = 60;    
-    instructionField.text = "Jyutping giant is dropping rocks to the city! You need 512 points to save our home. There is one weak spot. When they attack, you will hear a word. Type the word in Jyutping and you can destroy the falling rock.\n\nThis monster is bad at music, you can skip the spacebar and tone numbers.";
+    instructionField.text = "Rocks are falling to the city!!!\n\nType words that you hear as fast as you can to destroy the falling rocks! You can click on the rock to listen to it again.";
     
     messageField = new createjs.Text("Loading", "bold 24px Pixel", "#FFCCFF");
     messageField.maxWidth = 600;
@@ -167,7 +168,12 @@
       {id: "cloud", src:"cloud.png"},
       {id: "duck", src:"duck.png"},
       {id: "dragon", src:"dragon.png"},
-      {id: "fireworks", src:"fireworks.png"}                        
+      {id: "fireworks", src:"fireworks.png"},
+      {id: "mode0", src:"mode0.png"},
+      {id: "mode1", src:"mode1.png"},
+      {id: "mode2", src:"mode2.png"},
+      {id: "mode3", src:"mode3.png"},
+      {id: "mode4", src:"mode4.png"}                              
     ];    
 
     //createjs.Sound.alternateExtensions = ["mp3"];
@@ -201,6 +207,14 @@
 	function doneLoading(event) {
 		clearInterval(loadingInterval);
 		messageField.text = "Use <- or -> to select MODE. Press Enter to continue...";
+		
+		for (var i = 0; i < 5; i++){
+		  modeDesc[i] = new createjs.Bitmap(preload2.getResult("mode"+i));
+      modeDesc[i].x = 150;
+      modeDesc[i].y = 220;
+      modeDesc[i].name = "mode"+i;
+		}
+    updateScreenModeDesc();		
     stage.update();   //update the stage to show text
 		watchRestart();
 	}
@@ -560,27 +574,30 @@
             showingMsg.init("Try Again!","You should work\non your"+game.getModeText()+"!\n\nPress Enter\nto Return");
           }
           else {
-            showingMsg.init("Game Over","The monster\nhas destroyed\nthe City!!!\n\nClick on the rocks!\n\nPress Enter to \nswitch on the \nTime Machine");            
+            showingMsg.init("Game Over","The rocks\nhave destroyed\nthe City!!!\n\nClick on the rocks!\n\nPress Enter to \nswitch on the \nTime Machine");
+            levelField.text = "輸咗";            
           }
           showingMsg.show();
           stage.addChild(showingMsg);
-          game.pause();         
+          //game.pause();         
         } else {
           createjs.Sound.play("levelup", createjs.Sound.INTERRUPT_ANY);              
           showingMsg = new MsgBox();
           if (game.isPractice()){
-            showingMsg.init("Congratuations","You've finished\n"+game.getModeText()+"!\n\nPress Enter\nto Return");
+            showingMsg.init("Congratulations","You've finished\n"+game.getModeText()+"!\n\nPress Enter\nto Return");
           }
           else {
-            showingMsg.init("Congratuations","You've defeated\nthe Monster!!!\nEnjoy the city view.\n\nPress Enter\nto Return");            
+            showingMsg.init("Congratuations","You've defeated\nthe rocks!!!\nEnjoy the city view.\n\nPress Enter\nto Return");
+            levelField.text = "爆機";                        
           }
           showingMsg.show();
           stage.addChild(showingMsg);
-          game.pause();          
+          //game.pause();          
         }
         stage.update(event);    
 	    break;
 	    case ENDGAME_STATE:
+	      stage.update(event);
 	    break;
 	  }
 	}
@@ -607,9 +624,11 @@
             break;
           case 37:
             screenMode = (screenMode+4) % 5;
+            updateScreenModeDesc();            
             break;
           case 39: 
             screenMode = (screenMode+1) % 5;
+            updateScreenModeDesc();                        
             break;
         }		  
   		  return false;
@@ -661,6 +680,14 @@
 		}
 		return false;
 	}
+	function updateScreenModeDesc(){
+    for (var i = 0; i < 5; i++){    
+      stage.removeChild(modeDesc[i]);
+    }
+    stage.addChild(modeDesc[screenMode]);
+    stage.update();
+	}            
+
 </script>
 
 </body>
