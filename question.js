@@ -206,7 +206,7 @@ var BANK = [
 {"text":"英文", "lshk":"Jing Man", "full":"Jing1 Man2", "initial":"j m", "rhyme":"ing an", "tone":"1 2", "sound":"cfe0205.mp3" , "english":"English language"},
 {"text":"唔好意思", "lshk":"m hou ji si", "full":"m4 hou2 ji3 si1", "initial":"0 h j s", "rhyme":"m ou i i", "tone":"4 2 3 1", "sound":"cfe0206.mp3" , "english":"Sorry!"},
 {"text":"乜嘢", "lshk":"mat je", "full":"mat1 je5", "initial":"m j", "rhyme":"at e", "tone":"1 5", "sound":"cfe0207.mp3" , "english":"what"},
-{"text":"咩嘢名", "lshk":"me je meng", "full":"me1 je5 meng2", "initial":"m j m", "rhyme":"e e eng", "tone":"1 5 2", "sound":"cfe0208.mp3" , "english":"what name?"},
+{"text":"乜嘢名", "lshk":"mat je meng", "full":"mat1 je5 meng2", "initial":"m j m", "rhyme":"at e eng", "tone":"1 5 2", "sound":"cfe0208.mp3" , "english":"what name?"},
 {"text":"呢", "lshk":"ne", "full":"ne1", "initial":"n", "rhyme":"e", "tone":"1", "sound":"cfe0209.mp3" , "english":"particle - how about"},
 {"text":"你貴姓呀", "lshk":"nei gwai sing aa", "full":"nei5 gwai3 sing3 aa3", "initial":"n gw s 0", "rhyme":"ei ai ing aa", "tone":"5 3 3 3", "sound":"cfe0210.mp3" , "english":"What's your surname?"},
 {"text":"你呢", "lshk":"nei ne", "full":"nei5 ne1", "initial":"n n", "rhyme":"ei e", "tone":"5 1", "sound":"cfe0211.mp3" , "english":"How about you?"},
