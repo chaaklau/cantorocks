@@ -672,6 +672,7 @@
             } else {
               if (pendingStart) {restart(); pendingStart = false;}              
             }
+            stage.update();
             break;
           case 37:
             screenMode = (screenMode+4) % 5;
