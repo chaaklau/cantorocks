@@ -648,6 +648,19 @@
 
     var x = e.keyCode;
 		if (!e.altKey && !e.metaKey){
+      switch (x) {
+        //TODO: Add function to quit game
+        case 61:
+        case 187:        
+          showingMsg = new MsgBox();
+          showingMsg.init("GAME PAUSED");
+          showingMsg.show();
+          stage.addChild(showingMsg);
+          game.pause();
+          stage.update();
+          break;
+      }
+
   		if (pendingStart || showingMsg) {
         switch (x) {
           case 13:
