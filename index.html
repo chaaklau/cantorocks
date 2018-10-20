@@ -199,6 +199,8 @@
 		preload = new createjs.LoadQueue(true, assetsPath);
 		preload.installPlugin(createjs.Sound);
     preload.addEventListener("complete", doneLoadingSoundEffect);
+    // skip loading words
+    preload.addEventListener("complete", doneLoadingAudio);
     preload.addEventListener("progress", updateLoading);		
 		preload.loadManifest(manifest);
 		
@@ -207,12 +209,14 @@
     preload2.addEventListener("progress", updateLoading);    
     preload2.loadManifest(rockimages);
     
+    /*
     preload3 = new createjs.LoadQueue(true, "");
     preload3.installPlugin(createjs.Sound);
     preload3.addEventListener("complete", doneLoadingAudio);
     preload3.addEventListener("progress", updateLoading);
     preload3.loadManifest(words);
-    
+    */
+
     //Set up back-drop
     backdrop = new createjs.Container();
     backdrop.x = 0;
@@ -243,7 +247,7 @@
   }    
 
 	function doneLoading(event) {
-		if (loadingStatus < 3) return;
+		if (loadingStatus < /* 3 */ 2) return;
 		messageField.text = "Use <- or -> to select MODE. Press Enter to continue...";
 		
 		for (var i = 0; i < 5; i++){
