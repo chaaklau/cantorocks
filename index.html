@@ -4,6 +4,7 @@
   
 	<meta charset="utf-8">
 	<title>CantoRocks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta property="og:title" content="CantoRocks" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://chaaklau.github.io/cantorocks" />
@@ -16,9 +17,6 @@
   <meta property="og:determiner" content="the" />
   <meta property="og:site_name" content="CantoSounds" />  
 
-	<link rel="stylesheet" type="text/css" href="assets/shared.css"/>
-	<link rel="stylesheet" type="text/css" href="assets/examples.css"/>
-	<script src="assets/examples.js"></script>
 
   <!-- CreateJS related minified files -->
   <script src="libs/preloadjs-NEXT.min.js"></script>
@@ -27,12 +25,11 @@
   <script src="libs/easeljs-NEXT.min.js"></script>
 
   <!-- Game script below -->
-  <script type="text/javascript" src="gameconfig.js"></script>
-  <script type="text/javascript" src="msgbox.js"></script>
-  <script type="text/javascript" src="rock.js"></script>
-  <script type="text/javascript" src="question.js"></script>
-  <script type="text/javascript" src="gamestate.js"></script>
-  <script type="text/javascript" src="audiospritelist.js"></script>	
+  <script type="text/javascript" src="js/gameconfig.js"></script>
+  <script type="text/javascript" src="js/msgbox.js"></script>
+  <script type="text/javascript" src="js/rock.js"></script>
+  <script type="text/javascript" src="js/question.js"></script>
+  <script type="text/javascript" src="js/gamestate.js"></script>	
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1W7MV9Q8GG"></script>
@@ -43,17 +40,314 @@
 
     gtag('config', 'G-1W7MV9Q8GG');
   </script>
+
+  <link rel="stylesheet" type="text/css" href="styles/game.css"/>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600&display=swap');
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f8f9fa;
+      font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 400;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #2c3e50;
+    }
+
+    .container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .navbar {
+      background: #ffffff;
+      border-bottom: 1px solid #e9ecef;
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .navbar-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: none;
+      padding: 0 24px;
+    }
+
+    .logo {
+      color: #2c3e50;
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #6c757d;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-weight: 400;
+      font-size: 14px;
+    }
+
+    .nav-link:hover {
+      color: #495057;
+      background: #f8f9fa;
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .mode-button {
+      background: #ffffff;
+      color: #495057;
+      border: 2px solid #dee2e6;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .mode-button:hover {
+      border-color: #adb5bd;
+      background: #f8f9fa;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .mode-button.normal {
+      border-color: #2c3e50;
+      color: #2c3e50;
+    }
+
+    .mode-button.normal:hover {
+      background: #2c3e50;
+      color: #ffffff;
+    }
+
+    .mode-button.full {
+      border-color: #28a745;
+      color: #28a745;
+    }
+
+    .mode-button.full:hover {
+      background: #28a745;
+      color: #ffffff;
+    }
+
+    .controls-panel {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+      color: #495057;
+      text-align: center;
+      border: 1px solid #e9ecef;
+      max-width: 848px;
+      width: 100%;
+      font-weight: 400;
+    }
+
+    .about-section {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 32px;
+      margin: 24px;
+      color: #495057;
+      line-height: 1.6;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e9ecef;
+      font-weight: 400;
+      max-width: 800px;
+      margin: 24px auto;
+    }
+
+    .about-section ul {
+      padding-left: 20px;
+    }
+
+    .about-section li {
+      margin-bottom: 8px;
+    }
+
+    .btn {
+      background: #2c3e50;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #34495e;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    kbd {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: 'Source Code Pro', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 0.875em;
+      font-weight: 400;
+      color: #495057;
+    }
+
+    @media (max-width: 768px) {
+      .navbar-content {
+        flex-direction: column;
+        gap: 16px;
+        padding: 0 16px;
+      }
+      
+      .mode-selector {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .mode-button {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .game-canvas-container {
+        padding: 16px;
+        margin: 0 16px;
+      }
+      
+      #gameCanvas {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .about-section {
+        margin: 16px;
+        padding: 24px;
+      }
+
+      .controls-panel {
+        margin: 16px;
+      }
+    }
+
+    /* Improve font rendering for Unicode characters */
+    .unicode-text {
+      font-family: 'Inter', 'Noto Sans SC', 'Noto Sans CJK SC', 'Noto Sans CJK TC', 'Source Han Sans', sans-serif;
+      font-weight: 400;
+    }
+
+    /* Game text improvements */
+    .game-text {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      color: #2c3e50;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .mono-text {
+      font-family: 'Source Code Pro', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+    }
+  </style>
 </head>
 
-<body onload="init();" style="background-color:#000000; width:800px; height:500px; padding:0px; margin:0px;">
+<body onload="init();">
 
-<div id="content">
-  <input id="dummytextbox" type="text" style="height:1px; background:transparent; border:0px; width:800px;"/>  
-	<canvas id="gameCanvas" width="800" height="480" style="background:black;"> </canvas>
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-content">
+      <div class="logo">🎮 CantoRocks</div>
+      <div class="nav-links">
+        <div class="mode-selector">
+          <a href="?mode=normal" class="mode-button normal">Normal Mode</a>
+          <a href="?mode=full" class="mode-button full">Full Mode</a>
+        </div>
+        <a href="#game" onclick="showGame(); return false;" class="nav-link">Game</a>
+        <a href="#about" onclick="showAbout(); return false;" class="nav-link">About</a>
+        <a href="https://typeduck.hk" target="_blank" class="nav-link">TypeDuck</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div id="content" class="game-container">
+    <div class="game-canvas-container">
+      <input id="dummytextbox" type="text" style="position: absolute; left: -9999px; opacity: 0;"/>  
+      <canvas id="gameCanvas" width="800" height="480"></canvas>
+      <div id="last-answer"></div>>
+    </div>
+    
+    <div class="controls-panel">
+      Press <kbd>Enter</kbd> to start the game. Use keyboard to type the words.
+    </div>
+  </div>
+
+  <div id="about" class="about-section hidden">
+    <h2>About CantoRocks</h2>
+    <p>CantoRocks is an interactive HTML5 game designed to help you practice spelling Cantonese words using Jyutping romanization and reinforce your basic Cantonese vocabulary.</p>
+    
+    <h3>Game Modes</h3>
+    <ul>
+      <li><strong>Normal Mode:</strong> Type Cantonese words without tone marks - letters only</li>
+      <li><strong>Full Mode:</strong> Type complete Jyutping including tone numbers</li>
+    </ul>
+    
+    <h3>How to Play</h3>
+    <ol>
+      <li>Choose your game mode above</li>
+      <li>Press Enter to start the game</li>
+      <li>Type the Cantonese words shown on the falling rocks</li>
+      <li>Destroy rocks before they hit the ground!</li>
+    </ol>
+        
+    <p style="margin-top:30px; text-align: center;">
+      <button onclick="showGame()" class="btn">Back to Game</button>
+    </p>
+  </div>
 </div>
 
-<div id="error">
-  <p>A mini-game that helps you practise spelling Cantonese words using Jyutping romanisation and reinforce your basic Cantonese vocbulary.</p>
+<div id="error" style="display:none; padding: 20px; text-align: center; color: white;">
+  <h2>Browser Not Supported</h2>
+  <p>A mini-game that helps you practise spelling Cantonese words using Jyutping romanisation and reinforce your basic Cantonese vocabulary.</p>
+  <p>Please use a modern browser that supports HTML5 Canvas and Web Audio.</p>
 </div>
 
 <script type="text/javascript" id="gameplay">
@@ -98,6 +392,23 @@
   var freeze_counter = 0;
   var MAX_FREEZE = 10;
 
+  // Configuration object with afterScoreAdj setting
+  var gameConfig = {
+    afterScoreAdj: true,
+    soundEnabled: true
+  };
+
+  // Get mode from URL parameters
+  function getModeFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    if (mode === 'full') return 1;
+    return 0; // Default to normal mode
+  }
+
+  // Initialize screen mode from URL
+  screenMode = getModeFromURL();
+
 	//register key functions
 	document.onkeydown = handleKeyDown;
 	document.onkeyup = handleKeyUp;
@@ -105,28 +416,33 @@
 
 
   function initHomeScreen(){
-    instructionTitle = new createjs.Text("CantoRocks", "bold 34px Pixel", "#FFFFCC");
+    const modeText = screenMode === 1 ? "Full Mode" : "Normal Mode";
+    const modeDescription = screenMode === 1 ? 
+      "Type the tones. Start Now" : 
+      "No tones, letters only. Start Now";
+    
+    instructionTitle = new createjs.Text(`CantoRocks ${modeText}`, "bold 34px Inter, 'Noto Sans SC', sans-serif", "#FFFFCC");
     instructionTitle.textAlign = "left";
     instructionTitle.textBaseline = "top";
     instructionTitle.x = 30;
     instructionTitle.y = 10;
     
-    instructionField = new createjs.Text("", "18px Pixel", "#FFFFFF");
+    instructionField = new createjs.Text("", "18px Inter, 'Noto Sans SC', sans-serif", "#FFFFFF");
     instructionField.textAlign = "left";
     instructionField.textBaseline = "top";
     instructionField.lineWidth = 700;
     instructionField.x = 30;
     instructionField.y = 60;    
-    instructionField.text = "The monster is dropping rocks to the city!!!\n\nType words that you hear as fast as you can to destroy the falling rocks! You can click on the rock to listen to it again.";
+    instructionField.text = `${modeDescription}\n\nType the Cantonese words as fast as you can to destroy the falling rocks!`;
     
-    messageField = new createjs.Text("Loading", "bold 24px Pixel", "#FFCCFF");
+    messageField = new createjs.Text("Loading", "bold 24px Inter, sans-serif", "#FFCCFF");
     messageField.maxWidth = 600;
     messageField.textAlign = "right";
     messageField.textBaseline = "bottom";
     messageField.x = canvas.width - 10;
     messageField.y = canvas.height -10;
     
-    debugField = new createjs.Text("", "bold 20px Arial", "#FF0000");
+    debugField = new createjs.Text("", "bold 20px Inter, sans-serif", "#FF0000");
     debugField.maxWidth = 240;
     debugField.textAlign = "left";
     debugField.textBaseline = "middle";
@@ -147,7 +463,7 @@
 	function init() {
 		if (!createjs.Sound.initializeDefaultPlugins()) {
 			document.getElementById("error").style.display = "block";
-			document.getElementById("content").style.display = "none";
+			document.getElementById("content").classList.add("hidden");
 			return;
 		}
     
@@ -217,12 +533,6 @@
     preload2.addEventListener("progress", updateLoading);    
     preload2.loadManifest(rockimages);
     
-    preload3 = new createjs.LoadQueue(true, "");
-    preload3.installPlugin(createjs.Sound);
-    preload3.addEventListener("complete", doneLoadingAudio);
-    preload3.addEventListener("progress", updateLoading);
-    preload3.loadManifest(words);
-    
     //Set up back-drop
     backdrop = new createjs.Container();
     backdrop.x = 0;
@@ -233,7 +543,7 @@
 
 	function updateLoading() {
 
-		messageField.text = "Loading " + ((preload3? preload3.progress * 40|0 : 0) + (preload2? preload2.progress * 50|0 : 0) + (preload? preload.progress * 10|0 :0)) + "%";
+		messageField.text = "Loading " + ((preload2? preload2.progress * 70|0 : 0) + (preload? preload.progress * 30|0 :0)) + "%";
 		stage.update();
 	}
 
@@ -247,22 +557,23 @@
     doneLoading(event);
   }
 
-  function doneLoadingAudio(event) {
-    loadingStatus++;
-    doneLoading(event);
-  }    
-
 	function doneLoading(event) {
-		if (loadingStatus < 3) return;
-		messageField.text = "Use <- or -> to select MODE. Press Enter to continue...";
+		if (loadingStatus < 2) return;
+		messageField.text = "Press Enter to start the game!";
 		
+		// Initialize mode descriptions
 		for (var i = 0; i < 5; i++){
 		  modeDesc[i] = new createjs.Bitmap(preload2.getResult("mode"+i));
       modeDesc[i].x = 150;
       modeDesc[i].y = 220;
       modeDesc[i].name = "mode"+i;
 		}
-    updateScreenModeDesc();		
+		
+		// Only show mode description for current mode
+		if (modeDesc[screenMode]) {
+		  stage.addChild(modeDesc[screenMode]);
+		}
+    
     stage.update();   //update the stage to show text
 		watchRestart();
 	}
@@ -274,7 +585,6 @@
 	//reset all game logic
 	function restart() {
 	  // indicate the player is now on screen
-    createjs.Sound.play("begin");
 		stage.removeAllChildren();
 
     //Game Logic below
@@ -311,33 +621,33 @@
 		gamePanel.height = canvas.height;
 		stage.addChild(gamePanel);   
 
-    modeField = new createjs.Text("", "bold 18px Pixel", "#CCFFFF");
+    modeField = new createjs.Text("", "bold 18px Inter, 'Noto Sans TC', sans-serif", "#CCFFFF");
     modeField.textAlign = "left";
     modeField.x = 20;
     modeField.y = 20;
     modeField.maxWidth = 150;
     modeField.text = game.getModeText();
 
-    levelField = new createjs.Text("-----", "bold 18px Pixel", "#FFFFCC");
+    levelField = new createjs.Text("-----", "bold 18px Inter, sans-serif", "#FFFFCC");
     levelField.textAlign = "right";
     levelField.x = 240;
     levelField.y = 20;
     levelField.maxWidth = 70;
     
-    scoreField = new createjs.Text("0", "bold 40px Pixel", "#FFFFFF");
+    scoreField = new createjs.Text("0", "bold 40px Inter, sans-serif", "#FFFFFF");
     scoreField.textAlign = "right";
     scoreField.x = 220;
     scoreField.y = 100;
     scoreField.maxWidth = 240;    
 
-    comboField = new createjs.Text("", "20px Pixel", "#802222");
+    comboField = new createjs.Text("", "20px Inter, sans-serif", "#FFFFFF");
     comboField.textAlign = "center";
     comboField.textBaseline = "top";
     comboField.x = 130;
     comboField.y = 170;
     comboField.maxWidth = 240;
     
-    maxComboField = new createjs.Text("", "15px Pixel", "#804444");
+    maxComboField = new createjs.Text("", "15px Inter, sans-serif", "#F0F000");
     maxComboField.textAlign = "center";
     maxComboField.textBaseline = "top";
     maxComboField.x = 130;
@@ -345,14 +655,14 @@
     maxComboField.maxWidth = 240;
     
 
-    qTextField = new createjs.Text("", "bold 40px Pixel", "#483C32");
+    qTextField = new createjs.Text("", "bold 40px Inter, 'Noto Sans SC', sans-serif", "#2E3B82");
     qTextField.maxWidth = 240;
     qTextField.textAlign = "center";
     qTextField.textBaseline = "middle";
     qTextField.x = 100;
     qTextField.y = 160;        
 
-    qEnglishField = new createjs.Text("", "bold 15px Pixel", "#832A0D");
+    qEnglishField = new createjs.Text("", "bold 15px Inter, sans-serif", "#5D4037");
     qEnglishField.maxWidth = 190;
     qEnglishField.textAlign = "center";
     qEnglishField.textBaseline = "middle";
@@ -375,7 +685,7 @@
     g.drawRoundRect (40,380,180,30,8);
     typingBox = new createjs.Shape(g);
 
-    typingField = new createjs.Text("", "bold 16px Courier", "#222222");
+    typingField = new createjs.Text("", "bold 16px 'Source Code Pro', 'SF Mono', monospace", "#1A237E");
     typingField.maxWidth = 160;
     typingField.textAlign = "left";
     typingField.textBaseline = "middle";
@@ -403,6 +713,31 @@
 		}
   }
 
+function removeRock(rock){
+
+          // Add the item to a div, showing the char, jp and eng of the item
+          // Example: Show the last answered question (currRock.question)
+          let lastDiv = document.createElement('div');
+          lastDiv.id = 'last-answer';
+          lastDiv.style.margin = '16px auto';
+          lastDiv.style.maxWidth = '800px';
+          lastDiv.style.background = '#fffbe6';
+          lastDiv.style.border = '1px solid #ffe58f';
+          lastDiv.style.borderRadius = '8px';
+          lastDiv.style.padding = '12px 20px';
+          lastDiv.style.fontFamily = "'Inter', 'Noto Sans HK', sans-serif";
+          lastDiv.style.fontSize = '16px';
+          lastDiv.style.color = '#856404';
+          lastDiv.style.boxShadow = '0 2px 4px rgba(0,0,0,0.04)';
+          // Insert after .controls-panel
+          var controlsPanel = document.querySelector('.controls-panel');
+          if (controlsPanel && controlsPanel.parentNode) {
+            controlsPanel.parentNode.insertBefore(lastDiv, controlsPanel.nextSibling);
+          } else {
+            document.getElementById('answers').appendChild(lastDiv);
+          }
+          lastDiv.innerHTML = `<span class="unicode-text">${currRock.question.text}</span> <span class="mono-text" style="margin-left:8px;">${currRock.question.jp || ''}</span> <span style="margin-left:8px;">${currRock.question.eng || ''}</span>`;
+        }
 
 	function tick(event) {
     for (x in backdrop.moveables){
@@ -422,7 +757,7 @@
           gamePanel.addChild(currRock);
           qEnglishField.text = currRock.question.english;
           qTextField.text = currRock.question.text;
-          var inst = createjs.Sound.play(currRock.question.id, createjs.Sound.INTERRUPT_ANY);
+          // Removed individual word sound playing
         }
 
         //Scenario 1: bottom reached
@@ -448,10 +783,11 @@
         //Scenario 0: Rock recently removed
         if (currRock && freeze_counter == 0 && !currRock.active && !currRock.stuck) {  
           var beforeLevel = game.getLevel();
-          var beforeScoreAdj = Math.floor(game.getScore() * 0.05);
-          game.logAction(currRock.question,currRock.question.text.length);
+          var beforeScoreAdj = Math.floor(game.getScore() * 0.2);
+          game.logAction(currRock.question,1);
           gamePanel.removeChild(currRock);
           createjs.Sound.play("break", createjs.Sound.INTERRUPT_ANY);
+          removeRock(currRock);
           currRock = null;
           scoreField.text = game.getScore().toString();
           comboField.text = game.getComboString();
@@ -476,8 +812,8 @@
             game.pause();
             // TODO: Make scene change for level up
           }
-          var afterScoreAdj = Math.floor(game.getScore() * 0.05);
-          if (beforeScoreAdj < afterScoreAdj  &&  !game.isPractice()){
+          var afterScoreAdj = Math.floor(game.getScore() * 0.2);
+          if (beforeScoreAdj < afterScoreAdj  &&  !game.isPractice() && gameConfig.afterScoreAdj){
             var bg_item = new createjs.Bitmap(preload2.getResult("bg"+afterScoreAdj));
             bg_item.x = 260;
             backdrop.addChild(bg_item);
@@ -502,7 +838,7 @@
                 };
                 backdrop.moveables.push(bg_item);
                 break;
-              case 25:
+              case 24:
                 var bg_item = new createjs.Bitmap(preload2.getResult("dragon"));
                 bg_item.x = 260;
                 bg_item.y = 40;
@@ -596,7 +932,7 @@
                 backdrop.moveables.push(bg_item2);
                 break;
             }
-          }
+          }          
         }
         
         //Scenario 0': rock disappearing
@@ -685,14 +1021,6 @@
               if (pendingStart) {restart(); pendingStart = false;}              
             }
             break;
-          case 37:
-            screenMode = (screenMode+4) % 5;
-            updateScreenModeDesc();            
-            break;
-          case 39: 
-            screenMode = (screenMode+1) % 5;
-            updateScreenModeDesc();                        
-            break;
         }		  
   		  return false;
   		}
@@ -731,7 +1059,8 @@
     game.logAction(currRock.question, 0);
     comboField.text = game.getComboString();
     maxComboField.text = game.getMaxComboString();
-    currRock = null;    
+    removeRock(currRock);
+    currRock = null;
   }
 
 	function handleKeyUp(e) {
@@ -744,12 +1073,33 @@
 		return false;
 	}
 	function updateScreenModeDesc(){
+    // Remove all mode descriptions first
     for (var i = 0; i < 5; i++){    
-      stage.removeChild(modeDesc[i]);
+      if (modeDesc[i]) {
+        stage.removeChild(modeDesc[i]);
+      }
     }
-    stage.addChild(modeDesc[screenMode]);
+    // Add current mode description if it exists
+    if (modeDesc[screenMode]) {
+      stage.addChild(modeDesc[screenMode]);
+    }
     stage.update();
-	}            
+	}
+
+  // Navigation functions
+  function showGame() {
+    document.getElementById('content').classList.remove('hidden');
+    document.getElementById('about').classList.add('hidden');
+    document.getElementById('error').style.display = 'none';
+    // Refocus on the game input
+    document.getElementById("dummytextbox").focus();
+  }
+
+  function showAbout() {
+    document.getElementById('content').classList.add('hidden');
+    document.getElementById('about').classList.remove('hidden');
+    document.getElementById('error').style.display = 'none';
+  }            
 
 </script>
 </body>

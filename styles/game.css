@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #f8f9fa;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: #2c3e50;
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.navbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e9ecef;
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: none;
+  padding: 0 24px;
+}
+
+.logo {
+  color: #2c3e50;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.nav-link {
+  color: #6c757d;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.nav-link:hover {
+  color: #495057;
+  background: #f8f9fa;
+}
+
+.mode-selector {
+  position: relative;
+  display: inline-block;
+}
+
+.mode-dropdown {
+  background: #ffffff;
+  color: #495057;
+  border: 1px solid #dee2e6;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.mode-dropdown:hover {
+  border-color: #adb5bd;
+}
+
+.mode-dropdown:focus {
+  outline: none;
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.game-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px;
+  width: 100%;
+}
+
+.game-canvas-container {
+  background: #000000;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  width: 100%;
+  max-width: 1072px;
+  display: flex;
+  justify-content: center;
+}
+
+#gameCanvas {
+  border-radius: 8px;
+  display: block;
+  background: #000000;
+  border: 1px solid #e9ecef;
+}
+
+.controls-panel {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 24px;
+  color: #495057;
+  text-align: center;
+  border: 1px solid #e9ecef;
+  max-width: 1072px;
+  width: 100%;
+  font-weight: 400;
+}
+
+.about-section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  margin: 24px;
+  color: #495057;
+  line-height: 1.6;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  font-weight: 400;
+  max-width: 800px;
+  margin: 24px auto;
+}
+
+.about-section ul {
+  padding-left: 20px;
+}
+
+.about-section li {
+  margin-bottom: 8px;
+}
+
+.btn {
+  background: #2c3e50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: #34495e;
+}
+
+.hidden {
+  display: none !important;
+}
+
+kbd {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 0.875em;
+  font-weight: 400;
+  color: #495057;
+}
+
+@media (max-width: 768px) {
+  .navbar-content {
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 16px;
+  }
+  
+  .game-canvas-container {
+    padding: 16px;
+    margin: 0 16px;
+  }
+  
+  #gameCanvas {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .about-section {
+    margin: 16px;
+    padding: 24px;
+  }
+
+  .controls-panel {
+    margin: 16px;
+  }
+}
+
+/* Improve font rendering for Unicode characters */
+.unicode-text {
+  font-family: 'Inter', 'Noto Sans CJK SC', 'Noto Sans CJK TC', 'Source Han Sans', sans-serif;
+  font-weight: 300;
+}
