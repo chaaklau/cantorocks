@@ -5,9 +5,10 @@ const GameConfig = {
   MODE_INITIAL: 2,
   MODE_FINAL: 3,
   MODE_TONE: 4,
+  MODE_SUPERFAST: 5,
   
-  MODE_NAMES: ["Normal", "Full", "Initials", "Finals", "Tones"],
-  MAX_LEVEL: [6, 6, 2, 2, 2],
+  MODE_NAMES: ["Normal", "Full", "Initials", "Finals", "Tones", "Normal2x"],
+  MAX_LEVEL: [6, 6, 2, 2, 2, 6],
   VELOCITIES: [0.5, 0.75, 1, 1.25, 1.5],
   LEVELBOUND: [-1, 32, 64, 128, 256, 512, 9999999],
   
@@ -17,7 +18,8 @@ const GameConfig = {
   STATE_END: 3,
   
   getVelocity(mode, level) {
-    if (level < this.MAX_LEVEL[mode]) return this.VELOCITIES[level - 1];
+    let multiplier = (mode == GameConfig.MODE_SUPERFAST? 2: 1);
+    if (level < this.MAX_LEVEL[mode]) return this.VELOCITIES[level - 1] * multiplier;
     return 0;
   }
 };
@@ -95,7 +97,7 @@ class GameState {
   }
   
   isPractice() {
-    return this.mode !== GameConfig.MODE_REGULAR && this.mode !== GameConfig.MODE_FULL;
+    return this.mode !== GameConfig.MODE_REGULAR && this.mode !== GameConfig.MODE_FULL && this.mode !== GameConfig.MODE_SUPERFAST;
   }
 }
 
@@ -115,6 +117,7 @@ class Question {
       case GameConfig.MODE_INITIAL: this.lshk = item.initial; break;
       case GameConfig.MODE_FINAL: this.lshk = item.rhyme; break;
       case GameConfig.MODE_TONE: this.lshk = item.tone; break;
+      case GameConfig.MODE_SUPERFAST: this.lshk = item.lshk; break;
     }
   }
   
@@ -150,7 +153,7 @@ p.init = function(rockShape, question) {
   this.rock.x = 0;
   this.rock.y = 0;
   
-  this.label = new createjs.Text(question.text, "20px Arial", "#FFFFFF");
+  this.label = new createjs.Text(question.text, "18px Garamond", "#FFFFFF");
   this.label.maxWidth = 90;
   this.label.textAlign = "center";
   this.label.textBaseline = "middle";
@@ -178,7 +181,7 @@ p.check = function(mode, answer) {
 
 p.tick = function(event, game) {
   const velocity = GameConfig.getVelocity(game.getMode(), game.getLevel()) / 
-                   Math.pow(this.question.text.length, 0.5);
+                   Math.pow(this.question.text.length, 0.6);
   this.y += velocity;
 };
 
@@ -193,9 +196,11 @@ p.freeze = function(rockShape) {
   this.addChild(this.rock);
   
   this.removeChild(this.label);
-  this.label.color = "#DDDDDD";
-  this.label.text = this.question.lshk;
-  this.label.maxWidth = 80;
+  this.label.color = "#EEEEEE";
+  this.label.font = "16px Times";
+  this.label.y -= 10;
+  this.label.text = this.question.text + "\n" + this.question.lshk;
+  this.label.maxWidth = 90;
   this.addChild(this.label);
 };
 
