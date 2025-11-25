@@ -16,9 +16,9 @@
   <meta property="og:determiner" content="the" />
   <meta property="og:site_name" content="CantoSounds" />  
 
-	<link rel="stylesheet" type="text/css" href="assets/shared.css"/>
-	<link rel="stylesheet" type="text/css" href="assets/examples.css"/>
-	<script src="assets/examples.js"></script>
+	<link rel="stylesheet" type="text/css" href="src/css/shared.css"/>
+	<link rel="stylesheet" type="text/css" href="src/css/examples.css"/>
+	<script src="src/js/examples.js"></script>
 
   <!-- CreateJS related minified files -->
   <script src="libs/preloadjs-NEXT.min.js"></script>
@@ -27,12 +27,9 @@
   <script src="libs/easeljs-NEXT.min.js"></script>
 
   <!-- Game script below -->
-  <script type="text/javascript" src="gameconfig.js"></script>
-  <script type="text/javascript" src="msgbox.js"></script>
-  <script type="text/javascript" src="rock.js"></script>
-  <script type="text/javascript" src="question.js"></script>
-  <script type="text/javascript" src="gamestate.js"></script>
-  <script type="text/javascript" src="audiospritelist.js"></script>	
+  <script type="text/javascript" src="src/js/question.js"></script>
+  <script type="text/javascript" src="src/js/audiospritelist.js"></script>
+  <script type="text/javascript" src="src/js/game.js"></script>	
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1W7MV9Q8GG"></script>
@@ -58,50 +55,39 @@
 
 <script type="text/javascript" id="gameplay">
   document.getElementById("dummytextbox").focus();
-  var manifest;           // used to register sounds for preloading
-  var rockimages;         // rock images for preloading
-  var preload;
-  var preload2;
-  var preload3;    
-
-  var rockBelt;     //space rock array
-  var currRock;     // points to the falling rock
-
-  var canvas;     //Main canvas
-  var stage;      //Main display stage
   
-  var pendingStart;
+  // Asset loading
+  let manifest, rockimages, preload, preload2, preload3;
   
-  var gamePanel;      //a panel that contains every game object
-  var qPanel;         //a panel that holds currRock question
+  // Game entities
+  let rockBelt = [];
+  let currRock = null;
+  let game = null;
+  
+  // Canvas and stage
+  let canvas, stage;
+  
+  // UI state
+  let pendingStart = false;
+  let screenMode = 0;
+  let showingMsg = null;
+  
+  // Panels and containers
+  let gamePanel, qPanel, backdrop;
+  
+  // Text fields
+  let messageField, scoreField, levelField;
+  let qEnglishField, qTextField, typingField, debugField;
+  let comboField, maxComboField, modeField;
+  let modeDesc = [];
+  
+  // Animation
+  let freezeCounter = 0;
+  const MAX_FREEZE = 10;
 
-  var backdrop;  
-  var messageField;   //Message display field
-  var scoreField;     //score Field
-  var levelField;     //level Field
-  var qEnglishField;
-  var qTextField;
-  var typingField;    //user input
-  var debugField;
-  var comboField;
-  var maxComboField;
-  var modeField;
-  var modeDesc = [];
-  
-  var loadingStatus = 0;
-
-  var loadingInterval = 0;
-  var showingMsg = null;
-  
-  var screenMode = 0;
-  
-  var freeze_counter = 0;
-  var MAX_FREEZE = 10;
-
-	//register key functions
-	document.onkeydown = handleKeyDown;
-	document.onkeyup = handleKeyUp;
-  var game;
+  // Register key handlers
+  document.onkeydown = handleKeyDown;
+  document.onkeyup = handleKeyUp;
 
 
   function initHomeScreen(){
@@ -204,24 +190,26 @@
 
     //createjs.Sound.alternateExtensions = ["mp3"];
     
-    loadingStatus = 0;
-    
 		preload = new createjs.LoadQueue(true, assetsPath);
 		preload.installPlugin(createjs.Sound);
-    preload.addEventListener("complete", doneLoadingSoundEffect);
     preload.addEventListener("progress", updateLoading);		
 		preload.loadManifest(manifest);
 		
     preload2 = new createjs.LoadQueue(true, assetsPath2);
-    preload2.addEventListener("complete", doneLoadingImage);
     preload2.addEventListener("progress", updateLoading);    
     preload2.loadManifest(rockimages);
     
     preload3 = new createjs.LoadQueue(true, "");
     preload3.installPlugin(createjs.Sound);
-    preload3.addEventListener("complete", doneLoadingAudio);
     preload3.addEventListener("progress", updateLoading);
     preload3.loadManifest(words);
+    
+    // Wait for all assets to load
+    Promise.all([
+      new Promise(resolve => preload.addEventListener("complete", resolve)),
+      new Promise(resolve => preload2.addEventListener("complete", resolve)),
+      new Promise(resolve => preload3.addEventListener("complete", resolve))
+    ]).then(doneLoading);
     
     //Set up back-drop
     backdrop = new createjs.Container();
@@ -232,28 +220,11 @@
 	}
 
 	function updateLoading() {
-
 		messageField.text = "Loading " + ((preload3? preload3.progress * 40|0 : 0) + (preload2? preload2.progress * 50|0 : 0) + (preload? preload.progress * 10|0 :0)) + "%";
 		stage.update();
 	}
 
-  function doneLoadingSoundEffect(event) {
-    loadingStatus++;
-    doneLoading(event);
-  }
-  
-  function doneLoadingImage(event) {
-    loadingStatus++;
-    doneLoading(event);
-  }
-
-  function doneLoadingAudio(event) {
-    loadingStatus++;
-    doneLoading(event);
-  }    
-
-	function doneLoading(event) {
-		if (loadingStatus < 3) return;
+	function doneLoading() {
 		messageField.text = "Use <- or -> to select MODE. Press Enter to continue...";
 		
 		for (var i = 0; i < 5; i++){
@@ -285,12 +256,12 @@
     // delete all moveable items from backdrop
     backdrop.removeAllChildren();
     backdrop.moveables = [];
-    var bg;
+    let bg;
     switch (game.getMode()){
-      case MODE_FULL:
+      case GameConfig.MODE_FULL:
         bg = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("bg0_full")).drawRect (0,0,540,480));
         break;
-      case MODE_REGULAR:
+      case GameConfig.MODE_REGULAR:
         bg = new createjs.Shape(new createjs.Graphics().beginBitmapFill(preload2.getResult("bg0")).drawRect (0,0,540,480));
         break;              
       default:
@@ -405,14 +376,14 @@
 
 
 	function tick(event) {
-    for (x in backdrop.moveables){
+    for (let x in backdrop.moveables){
       backdrop.moveables[x].tick();
     }	    
 	  if (game.isPaused()) return;
 	  switch(game.getState()){
-	    case INIT_STATE:
-	      game.changeState(GAME_STATE); 
-	    case GAME_STATE: 
+	    case GameConfig.STATE_INIT:
+	      game.changeState(GameConfig.STATE_GAME); 
+	    case GameConfig.STATE_GAME: 
         //Generate new rock if no active rock
         if (!currRock) {
           typingField.text = "";
@@ -426,19 +397,23 @@
         }
 
         //Scenario 1: bottom reached
-        if (currRock && (currRock.y + currRock.getBounds().height > canvas.height)) {
-          freezeCurrRock();
+        if (currRock) {
+          const bounds = currRock.getBounds();
+          if (bounds && currRock.y + bounds.height > canvas.height) {
+            freezeCurrRock();
+          }
         }
   
         //Scenario 2: check if it has reached other rocks
         if (currRock && rockBelt.length > 1) {
-          for (spaceRock in rockBelt) {
-            var r = rockBelt[spaceRock];
+          for (let spaceRock in rockBelt) {
+            const r = rockBelt[spaceRock];
             if (!r.launched  ||  r == currRock) continue;
-            var x_dif = Math.abs(currRock.x - r.x); var y_dif = Math.abs(currRock.y - r.y);
+            const x_dif = Math.abs(currRock.x - r.x); 
+            const y_dif = Math.abs(currRock.y - r.y);
             if (Math.sqrt ( (x_dif * 84 / 101) * (x_dif * 84/101) + y_dif * y_dif ) < 84) {
               // check whether the user has lost the game
-              if (currRock.y < 0) { game.changeState(ENDINGGAME_STATE); freezeCurrRock(); break; }
+              if (currRock.y < 0) { game.changeState(GameConfig.STATE_ENDING); freezeCurrRock(); break; }
               freezeCurrRock();                 
               break;    
             }
@@ -446,10 +421,12 @@
         }
 	    
         //Scenario 0: Rock recently removed
-        if (currRock && freeze_counter == 0 && !currRock.active && !currRock.stuck) {  
-          var beforeLevel = game.getLevel();
-          var beforeScoreAdj = Math.floor(game.getScore() * 0.05);
-          game.logAction(currRock.question,currRock.question.text.length);
+        if (currRock && freezeCounter == 0 && !currRock.active && !currRock.stuck) {  
+          const beforeLevel = game.getLevel();
+          const beforeScoreAdj = Math.floor(game.getScore() * 0.05);
+          const question = currRock.question;
+          const textLength = question ? question.text.length : 0;
+          game.logAction(question, textLength);
           gamePanel.removeChild(currRock);
           createjs.Sound.play("break", createjs.Sound.INTERRUPT_ANY);
           currRock = null;
@@ -460,13 +437,13 @@
           if (beforeLevel < game.getLevel()) {
             // Level up
             createjs.Sound.play("levelup", createjs.Sound.INTERRUPT_ANY);
-            for (rock in rockBelt){
+            for (let rock in rockBelt){
               gamePanel.removeChild(rockBelt[rock]);
             }            
             rockBelt = [];
 
             if (game.isMax()) {
-              game.changeState(ENDINGGAME_STATE);
+              game.changeState(GameConfig.STATE_ENDING);
               break; 
             }              
             showingMsg = new MsgBox();
@@ -476,16 +453,16 @@
             game.pause();
             // TODO: Make scene change for level up
           }
-          var afterScoreAdj = Math.floor(game.getScore() * 0.05);
+          const afterScoreAdj = Math.floor(game.getScore() * 0.05);
           if (beforeScoreAdj < afterScoreAdj  &&  !game.isPractice()){
-            var bg_item = new createjs.Bitmap(preload2.getResult("bg"+afterScoreAdj));
+            let bg_item = new createjs.Bitmap(preload2.getResult("bg"+afterScoreAdj));
             bg_item.x = 260;
             backdrop.addChild(bg_item);
             
             switch (afterScoreAdj){
               //set up special items, like rotating sun, etc.
               case 22:
-                var bg_item = new createjs.Bitmap(preload2.getResult("duck"));
+                bg_item = new createjs.Bitmap(preload2.getResult("duck"));
                 bg_item.x = 700;
                 bg_item.y = 400;
                 bg_item.name = "duck";
@@ -503,7 +480,7 @@
                 backdrop.moveables.push(bg_item);
                 break;
               case 25:
-                var bg_item = new createjs.Bitmap(preload2.getResult("dragon"));
+                bg_item = new createjs.Bitmap(preload2.getResult("dragon"));
                 bg_item.x = 260;
                 bg_item.y = 40;
                 bg_item.name = "dragon";
@@ -521,7 +498,7 @@
                 backdrop.moveables.push(bg_item);
                 break;
               case 15:
-                var bg_item = new createjs.Bitmap(preload2.getResult("plane"));
+                bg_item = new createjs.Bitmap(preload2.getResult("plane"));
                 bg_item.x = 260;
                 bg_item.y = 90;
                 bg_item.name = "plane";
@@ -540,7 +517,7 @@
                 backdrop.moveables.push(bg_item);
                 break;
               case 17:
-                var bg_item = new createjs.Bitmap(preload2.getResult("junk"));
+                bg_item = new createjs.Bitmap(preload2.getResult("junk"));
                 bg_item.x = 260;
                 bg_item.y = 400;
                 bg_item.name = "junk";
@@ -561,7 +538,7 @@
                 backdrop.moveables.push(bg_item);
                 break;
               case 3:
-                var bg_item = new createjs.Bitmap(preload2.getResult("sun"));
+                bg_item = new createjs.Bitmap(preload2.getResult("sun"));
                 bg_item.x = 730;
                 bg_item.y = 50;
                 bg_item.name = "sun";
@@ -576,7 +553,7 @@
                 backdrop.moveables.push(bg_item);
                 break;
               case 2:
-                var bg_item1 = new createjs.Bitmap(preload2.getResult("cloud"));
+                let bg_item1 = new createjs.Bitmap(preload2.getResult("cloud"));
                 bg_item1.x = 300;
                 bg_item1.y = 100;
                 bg_item1.name = "cloud1";
@@ -584,7 +561,7 @@
                 bg_item1.tick = function(event, game){
                   this.x = (this.x - 100 + 0.1) % 700 + 100; 
                 };
-                var bg_item2 = new createjs.Bitmap(preload2.getResult("cloud"));
+                let bg_item2 = new createjs.Bitmap(preload2.getResult("cloud"));
                 bg_item2.x = 600;
                 bg_item2.y = 200;
                 bg_item2.name = "cloud2";
@@ -600,9 +577,9 @@
         }
         
         //Scenario 0': rock disappearing
-        if (currRock && freeze_counter > 0) {
-          currRock.alpha = freeze_counter / MAX_FREEZE;
-          freeze_counter--;
+        if (currRock && freezeCounter > 0) {
+          currRock.alpha = freezeCounter / MAX_FREEZE;
+          freezeCounter--;
         }
 
         if (currRock && currRock.active) {
@@ -611,9 +588,9 @@
         //call sub ticks
         stage.update(event);
 	    break;
-	    case ENDINGGAME_STATE: 
+	    case GameConfig.STATE_ENDING:ENDING: 
         //Officially ending the game        
-        game.changeState(ENDGAME_STATE);
+        game.changeState(GameConfig.STATE_END);
 
         if (!game.isMax()) {
           createjs.Sound.play("dead", createjs.Sound.INTERRUPT_ANY); 
@@ -644,7 +621,7 @@
         }
         stage.update(event);    
 	    break;
-	    case ENDGAME_STATE:
+	    case GameConfig.STATE_END:
 	      stage.update(event);
 	    break;
 	  }
@@ -678,7 +655,7 @@
           case 13:
             if (showingMsg != null) {
               showingMsg.hide(); stage.removeChild(showingMsg); showingMsg = null; game.unpause(); stage.update();
-              if (game.getState() == ENDGAME_STATE) {
+              if (game.getState() == GameConfig.STATE_END) {
                         loadHomeScreen(); doneLoading();                          
               }
             } else {
@@ -698,7 +675,7 @@
   		}
     }
     
-    if (game && game.getState() == GAME_STATE) {
+    if (game && game.getState() == GameConfig.STATE_GAME) {
       switch (x) {
         case 8:
           typingField.text = typingField.text.substr(0,typingField.text.length-1);
@@ -713,10 +690,10 @@
           
           if (currRock) {
             if (currRock.check(game.getMode(), typingField.text)) {           
-              var index = rockBelt.indexOf(currRock);
+              const index = rockBelt.indexOf(currRock);
               rockBelt.splice(index,1);
               currRock.active = false;
-              freeze_counter = MAX_FREEZE;
+              freezeCounter = MAX_FREEZE;
             }  
           }
           return false;
@@ -731,7 +708,7 @@
     game.logAction(currRock.question, 0);
     comboField.text = game.getComboString();
     maxComboField.text = game.getMaxComboString();
-    currRock = null;    
+    currRock = null;
   }
 
 	function handleKeyUp(e) {

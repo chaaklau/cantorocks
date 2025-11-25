@@ -558,35 +558,6 @@ var BANK = [
 {"text":"放工", "lshk":"fong gung", "full":"fong3 gung1", "initial":"f g", "rhyme":"ong ung", "tone":"3 1", "sound":"cfe0557.mp3" , "english":"finish work; off duty"},
 ];
 
-function Question(mode, id){
-  var item = BANK[id];
-  this.text = item.text;
-  this.lshk = "";
-
-  switch (mode){
-    case MODE_REGULAR: this.lshk = item.lshk; break;  
-    case MODE_FULL:    this.lshk = item.full; break;  
-    case MODE_INITIAL: this.lshk = item.initial; break;  
-    case MODE_FINAL:   this.lshk = item.rhyme; break;  
-    case MODE_TONE:    this.lshk = item.tone; break;  
-  }
-  this.english = item.english;
-  this.sound = item.sound;
-  this.id = this.sound.substr(0,this.sound.length-4);
-  
-  String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-  };
-
-  this.check = function(mode, attempt) {
-    if (mode == MODE_INITIAL || mode == MODE_FINAL) {
-      return this.lshk.toLowerCase() == attempt;  
-    }
-    return this.lshk.replaceAll(" ","").toLowerCase() == attempt.replaceAll(" ","");
-  };  
-}
-
 
 
 
